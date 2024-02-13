@@ -1,11 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark-theme">
     <head>
         <meta charset="UTF-8"/>
         <title>Volumetric Renderer</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="src/css/style.css">
     </head>
-    <body>
+    <body class="flex-vertical">
+        <header class="flex-size-to-content">
+            <h1>VOLUMETRIC VIEWER</h1>
+            <div class="toolbar">
+                <a>File</a>
+            </div>
+        </header>
+        <div class="main-area">
+            <div id="viewport" class="flex-expand panel"></div>
+            <div class="flex-size-to-content panel properties">
+                <h2>Display</h2>
+                <h2>Slicing</h2>
+                <h2>Transfer Function</h2>
+            </div>
+        </div>
         <script type="module" src="src/js/main.js"></script>
     </body>
 </html>
