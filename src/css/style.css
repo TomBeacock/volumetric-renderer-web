@@ -7,10 +7,10 @@
     --color-border: #f0f1f5;
     --color-separator: #f1f1f5;
     --color-control-background: #f8f9fc;
-    --color-control-foreground: #d7d6d6;
+    --color-control-foreground: #ffffff;
     --color-button-hover: #dcdcdc;
     --color-slider-track: #e6e7ed;
-    --color-slider-thumb: #ffffff;
+    --color-slider-thumb: var(--color-control-foreground);
 }
 
 .dark-theme {
@@ -25,7 +25,7 @@
     --color-control-foreground: #d7d6d6;
     --color-button-hover: #6b6b6b;
     --color-slider-track: var(--color-background-0);
-    --color-slider-thumb: var(--color-text-regular);
+    --color-slider-thumb: var(--color-control-foreground);
 }
 
 html {
@@ -138,7 +138,7 @@ h2 {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 0.375rem;
-    border: 1px solid var(--color-text-regular);
+    border: 1px solid var(--color-accent-0);
 }
 
 .slider::-moz-range-thumb {
@@ -146,7 +146,7 @@ h2 {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 0.375rem;
-    border: 1px solid #000000;
+    border: 1px solid var(--color-accent-0);
 }
 
 /* ----- Range Slider ----- */
@@ -180,7 +180,7 @@ h2 {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 0.375rem;
-    border: 1px solid #000000;
+    border: 1px solid var(--color-accent-0);
 }
 
 .range-slider input::-moz-range-thumb {
@@ -190,7 +190,7 @@ h2 {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 0.375rem;
-    border: 1px solid #000000;
+    border: 1px solid var(--color-accent-0);
 }
 
 .range-slider input:last-of-type {
