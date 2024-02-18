@@ -85,6 +85,11 @@ function create_volume_mesh() {
     return new THREE.Mesh(geometry, material);
 }
 
+const openFileInput = document.getElementById("open-file-input");
+openFileInput.addEventListener("change", (event) => {
+    const fileList = openFileInput.files;
+});
+
 function update()  {
     requestAnimationFrame(update);
     volume.material.uniforms.u_view_matrix.value = camera.matrixWorldInverse;
