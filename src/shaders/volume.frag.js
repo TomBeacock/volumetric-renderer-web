@@ -1,6 +1,6 @@
 const fragmentShader = /* glsl */ `
-precision highp float;
-precision highp sampler3D;
+precision mediump float;
+precision mediump sampler3D;
 
 in vec3 frag_position;
 in vec3 frag_tex_coords;
@@ -38,6 +38,11 @@ void main() {
             color.rgb += color.a * (sample_color.a * sample_color.rgb);
             color.a *= (1.0 - sample_color.a);
         }
+
+        if (color.a < 0.001) {
+            break;
+        }
+
         ray_pos += ray_dir * step_size;
     }
     color.a = 1.0 - color.a;

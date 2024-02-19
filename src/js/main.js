@@ -1,5 +1,7 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/addons/controls/OrbitControls.js"
+import { NRRDLoader } from "./nrrd_loader.js"
+import { VolumeDataset } from "./volume_dataset.js"
 
 import vertexShader from "../shaders/volume.vert.js"
 import fragmentShader from "../shaders/volume.frag.js"
@@ -63,7 +65,7 @@ function create_volume_mesh() {
     const defaultVolume = new THREE.Data3DTexture(new Uint8Array([255]), 1, 1, 1);
     defaultVolume.format = THREE.RedFormat;
     defaultVolume.needsUpdate = true;
-    const defaultTransferFunc = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
+    const defaultTransferFunc = new THREE.DataTexture(new Uint8Array([255, 255, 255, 0, 255, 255, 255, 255]), 2, 1);
     defaultTransferFunc.needsUpdate = true;
 
     const material = new THREE.RawShaderMaterial({
@@ -75,19 +77,37 @@ function create_volume_mesh() {
             u_view_matrix: {value: camera.matrixWorldInverse},
             u_camera_position: {value: camera.position.clone()},
             u_density_min: {value: 0.0},
-            u_density_max: {value: 255.0},
+            u_density_max: {value: 1.0},
             u_slice_min: {value: new THREE.Vector3(0.0, 0.0, 0.0)},
             u_slice_max: {value: new THREE.Vector3(1.0, 1.0, 1.0)},
-            u_volume: { value: defaultVolume},
-            u_transfer_func: { value: defaultTransferFunc},
-        }
+            u_volume: {value: defaultVolume},
+            u_transfer_func: {value: defaultTransferFunc},
+        },
+        blending: THREE.AdditiveBlending,
     });
     return new THREE.Mesh(geometry, material);
 }
 
 const openFileInput = document.getElementById("open-file-input");
 openFileInput.addEventListener("change", (event) => {
-    const fileList = openFileInput.files;
+    const files = openFileInput.files;
+    if(files.length > 0) {
+        const fileReader = new FileReader();
+        fileReader.addEventListener("load", (event) => {
+            try {
+                const loader = new NRRDLoader();
+                let dataset = loader.parse(event.target.result);
+                const volumeTexture = new THREE.Data3DTexture(dataset.data, dataset.xLength, dataset.yLength, dataset.zLength);
+                volumeTexture.format = THREE.RedFormat;
+                volume.material.uniforms.u_volume.value = volumeTexture;
+                volume.material.uniforms.u_volume.value.needsUpdate = true;
+                volume.material.needsUpdate = true;
+            } catch (error) {
+                console.log(error);
+            }
+        });
+        fileReader.readAsArrayBuffer(files[0]);
+    }
 });
 
 function update()  {
