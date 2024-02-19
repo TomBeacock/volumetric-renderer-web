@@ -285,10 +285,18 @@ header .separator {
 /* ----- Labelled Field ----- */
 .labelled-field {
     display: flex;
-    flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
     margin-bottom: 0.5rem;
+}
+
+.labelled-field.column {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.labelled-field.column > .field {
+    width: 100%;
 }
 
 .labelled-field > .label {
@@ -296,11 +304,12 @@ header .separator {
     min-width: 10ch;
 }
 
-.labelled-field > .field {
+.field {
     display: flex;
     flex-grow: 1;
+    flex-shrink: 0;
     align-items: center;
-    gap: 0.125rem;
+    column-gap: 0.125rem;
     background-color: var(--color-control-background);
     border-radius: 0.25rem;
     border: 1px solid var(--color-border);
@@ -308,10 +317,8 @@ header .separator {
     padding-inline: 0.375rem;
 }
 
-
 .field > .label {
     flex: none;
-    width: 3ch;
     margin-inline: 0.125rem;
     text-align: right;
 }
@@ -322,6 +329,40 @@ header .separator {
     text-transform: capitalize;
     font-weight: bold;
     font-size: x-small;
+}
+
+.field.field-slider > .label,
+.field.field-range-slider > .label {
+    width: 3ch;
+}
+
+.field.field-gradient {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.field.field-color .color-block {
+    background-color: white;
+    height: calc(1em + 0.5rem);
+    aspect-ratio: 1 / 1;
+    border-radius: 0.125rem;
+    margin-right: 0.25rem;
+}
+
+.gradient {
+    width: 100%;
+}
+
+.gradient .track {
+    height: 1rem;
+}
+
+.gradient .bar {
+    height: 2rem;
+    background-color: white;
 }
 
 .field-slider .slider,
