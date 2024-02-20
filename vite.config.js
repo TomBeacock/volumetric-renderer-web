@@ -1,3 +1,3 @@
 export default {
-    base: "/volumetric-renderer-web/"
+    base: "/volumetric-renderer-web"
 }
