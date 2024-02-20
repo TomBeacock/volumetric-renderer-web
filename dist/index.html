@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-theme">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+        <title>Volumetric Renderer</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&family=Poppins:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+      <script type="module" crossorigin src="/assets/index-IjCY71kS.js"></script>
+      <link rel="stylesheet" crossorigin href="/assets/index-J6f4YGzp.css">
+    </head>
+    <body>
+        <input type="file" id="open-file-input" style="display: none;" multiple>
+        <header>
+            <div class="header-section">
+                <div id="open-file-button" class="button">
+                    <span class="material-symbols-outlined">file_open</span>
+                </div>
+            </div>
+            <div class="separator"></div>
+            <div class="fill"></div>
+            <div id="theme-toggle-button-group" class="toggle-button-group header-section">
+                <div class="toggle-button" data-name="light-mode">
+                    <span class="material-symbols-outlined">light_mode</span>
+                </div>
+                <div class="toggle-button selected" data-name="dark-mode">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </div>
+            </div>
+        </header>
+        <div class="main-area">
+            <div id="viewport" class="panel viewport"></div>
+            <div class="panel properties">
+                <div class="section">
+                    <h2 class="section-heading">Display</h2>
+                    <div class="labelled-field">
+                        <p class="label">Brightness</p>
+                        <div class="field field-slider">
+                            <input class="slider" type="range" min="0" max="100" value="50"/>
+                            <span class="label">100</span>
+                            <span class="unit">%</span>
+                        </div>
+                    </div>
+                    <div class="labelled-field">
+                        <p class="label">Contrast</p>
+                        <div class="field field-slider">
+                            <input class="slider" type="range" min="0" max="100" value="50"/>
+                            <span class="label">100</span>
+                            <span class="unit">%</span>
+                        </div>
+                    </div>
+                    <div class="labelled-field column">
+                        <p class="label">Color Map</p>
+                        <div class="field field-gradient">
+                            <div class="gradient">
+                                <div class="track"></div>
+                                <div class="bar"></div>
+                                <div class="track"></div>
+                            </div>
+                            <div class="labelled-field">
+                                <p class="label">Color</p>
+                                <div class="field field-color">
+                                    <div class="color-block"></div>
+                                    <span class="unit">#</span>
+                                    <span class="label">FFFFFF</span>
+                                </div>
+                            </div>
+                            <div class="labelled-field">
+                                <p class="label">Location</p>
+                                <div class="field field-text">
+                                    <input type="text"/>
+                                    <span class="unit">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="separator"></div>
+                <div class="section">
+                    <h2 class="section-heading">Slicing</h2>
+                    <div class="labelled-field">
+                        <p class="label">X-Axis</p>
+                        <div class="field field-range-slider">
+                            <span class="label">100</span>
+                            <span class="unit">%</span>
+                            <div class="range-slider">
+                                <input type="range" min="0" max="100" value="0"/>
+                                <input type="range" min="0" max="100" value="100"/>
+                            </div>
+                            <span class="label">100</span>
+                            <span class="unit">%</span>
+                        </div>
+                    </div>
+                    <div class="labelled-field">
+                        <p class="label">Y-Axis</p>
+                        <div class="field field-range-slider">
+                            <span class="label">100</span>
+                            <span class="unit">%</span>
+                            <div class="range-slider">
+                                <input type="range" min="0" max="100" value="0"/>
+                                <input type="range" min="0" max="100" value="100"/>
+                            </div>
+                            <span class="label">100</span>
+                            <span class="unit">%</span>
+                        </div>
+                    </div>
+                    <div class="labelled-field">
+                        <p class="label">Z-Axis</p>
+                        <div class="field field-range-slider">
+                            <span class="label">100</span>
+                            <span class="unit">%</span>
+                            <div class="range-slider">
+                                <input type="range" min="0" max="100" value="0"/>
+                                <input type="range" min="0" max="100" value="100"/>
+                            </div>
+                            <span class="label">100</span>
+                            <span class="unit">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

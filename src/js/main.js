@@ -65,7 +65,7 @@ function create_volume_mesh() {
     const defaultVolume = new THREE.Data3DTexture(new Uint8Array([255]), 1, 1, 1);
     defaultVolume.format = THREE.RedFormat;
     defaultVolume.needsUpdate = true;
-    const defaultTransferFunc = new THREE.DataTexture(new Uint8Array([255, 255, 255, 0, 255, 255, 255, 255]), 2, 1);
+    const defaultTransferFunc = new THREE.DataTexture(new Uint8Array([255, 255, 255, 0, 255, 255, 255, 100]), 2, 1);
     defaultTransferFunc.needsUpdate = true;
 
     const material = new THREE.RawShaderMaterial({
