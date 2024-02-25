@@ -9,7 +9,7 @@ openFileButton.addEventListener("click", (event) => {
 
 // Setup theme switching
 const themeToggleButtonGroup = document.getElementById("theme-toggle-button-group");
-themeToggleButtonGroup.addEventListener("item-selected", (event) => {
+themeToggleButtonGroup.addEventListener("selectedchange", (event) => {
     switch(event.detail) {
         case "light-mode":
             document.documentElement.classList.remove("dark-theme");

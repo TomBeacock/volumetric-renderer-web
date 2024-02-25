@@ -12,6 +12,41 @@
     </head>
     <body>
         <input type="file" id="open-file-input" style="display: none;" multiple>
+        <div id="color-picker" class="color-picker">
+            <div class="color-area">
+                <div class="color-area-track">
+                    <div class="thumb"></div>
+                </div>
+            </div>
+            <input class="slider-hue" type="range" min="0" max="360" value="0"/>
+            <div class="inputs">
+                <div class="labelled-field column reverse center">
+                    <span class="label">HEX</span>
+                    <div class="field field-text">
+                        <span class="unit">#</span>
+                        <input type="text"/>
+                    </div>
+                </div>
+                <div class="labelled-field column reverse center">
+                    <span class="label">R</span>
+                    <div class="field field-text">
+                        <input type="text"/>
+                    </div>
+                </div>
+                <div class="labelled-field column reverse center">
+                    <span class="label">G</span>
+                    <div class="field field-text">
+                        <input type="text"/>
+                    </div>
+                </div>
+                <div class="labelled-field column reverse center">
+                    <span class="label">B</span>
+                    <div class="field field-text">
+                        <input type="text"/>
+                    </div>
+                </div>
+            </div>
+        </div>
         <header>
             <div class="header-section">
                 <div id="open-file-button" class="button">
@@ -33,7 +68,7 @@
             <div id="viewport" class="panel viewport"></div>
             <div class="panel properties">
                 <div class="section">
-                    <h2 class="section-heading">Display</h2>
+                    <h2>Display</h2>
                     <div class="labelled-field">
                         <p class="label">Brightness</p>
                         <div class="field field-slider">
@@ -53,9 +88,7 @@
                     <div class="labelled-field column">
                         <p class="label">Color Map</p>
                         <div class="field field-gradient">
-                            <div class="gradient">
-                                <div class="track"></div>
-                                <div class="bar"></div>
+                            <div class="gradient" data-format="rgb">
                                 <div class="track"></div>
                             </div>
                             <div class="labelled-field">
@@ -66,10 +99,19 @@
                                     <span class="label">FFFFFF</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="labelled-field column">
+                        <p class="label">Opacity Map</p>
+                        <div class="field field-gradient">
+                            <div class="gradient" data-format="a">
+                                <div class="track"></div>
+                            </div>
                             <div class="labelled-field">
-                                <p class="label">Location</p>
-                                <div class="field field-text">
-                                    <input type="text"/>
+                                <p class="label">Opacity</p>
+                                <div class="field field-slider">
+                                    <input class="slider" type="range" min="0" max="100" value="50"/>
+                                    <span class="label">100</span>
                                     <span class="unit">%</span>
                                 </div>
                             </div>
@@ -78,7 +120,7 @@
                 </div>
                 <div class="separator"></div>
                 <div class="section">
-                    <h2 class="section-heading">Slicing</h2>
+                    <h2>Slicing</h2>
                     <div class="labelled-field">
                         <p class="label">X-Axis</p>
                         <div class="field field-range-slider">

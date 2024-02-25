@@ -5,12 +5,16 @@
     --color-text-faded: #bababa;
     --color-accent-0: #0051ff;
     --color-border: #f0f1f5;
-    --color-separator: #f1f1f5;
-    --color-control-background: #f8f9fc;
+    --color-separator: #eaeaef;
+    --color-control-background: #f7f7f9;
     --color-control-foreground: #ffffff;
     --color-button-hover: #dcdcdc;
-    --color-slider-track: #e6e7ed;
-    --color-slider-thumb: var(--color-control-foreground);
+    --color-slider-track: #dddde1;
+    --color-slider-thumb: #ffffff;
+    --shadow-panel: 0px 1px 2px 1px rgba(0.0, 0.0, 0.0, 0.2);
+    --shadow-slider-thumb: 0px 0.5px 2px 1px rgba(0.0, 0.0, 0.0, 0.3);
+    --shadow-gradient-marker: var(--shadow-slider-thumb);
+    --shadow-color-picker-thumb: 0px 0.5px 2px 1px rgba(0.0, 0.0, 0.0, 0.3);
 }
 
 .dark-theme {
@@ -25,7 +29,11 @@
     --color-control-foreground: #d7d6d6;
     --color-button-hover: #6b6b6b;
     --color-slider-track: var(--color-background-0);
-    --color-slider-thumb: var(--color-control-foreground);
+    --color-slider-thumb: #ffffff;
+    --shadow-panel: none;
+    --shadow-slider-thumb: none;
+    --shadow-gradient-marker: none;
+    --shadow-color-picker-thumb: 0px 0.5px 2px 1px rgba(0.0, 0.0, 0.0, 0.3);
 }
 
 html {
@@ -125,7 +133,6 @@ h2 {
     background-color: var(--color-slider-track);
     outline: none;
     cursor: pointer;
-    width: 100%;
     height: 0.25rem;
     border-radius: 2px;
     margin: 0.125rem;
@@ -138,7 +145,7 @@ h2 {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 0.375rem;
-    border: 1px solid var(--color-accent-0);
+    box-shadow: var(--shadow-slider-thumb);
 }
 
 .slider::-moz-range-thumb {
@@ -146,12 +153,11 @@ h2 {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 0.375rem;
-    border: 1px solid var(--color-accent-0);
+    box-shadow: var(--shadow-slider-thumb);
 }
 
 /* ----- Range Slider ----- */
 .range-slider {
-    width: 100%;
     height: 0.5rem;
     position: relative;
     left: 0;
@@ -180,7 +186,7 @@ h2 {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 0.375rem;
-    border: 1px solid var(--color-accent-0);
+    box-shadow: var(--shadow-slider-thumb);
 }
 
 .range-slider input::-moz-range-thumb {
@@ -190,7 +196,7 @@ h2 {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 0.375rem;
-    border: 1px solid var(--color-accent-0);
+    box-shadow: var(--shadow-slider-thumb);
 }
 
 .range-slider input:last-of-type {
@@ -205,6 +211,125 @@ h2 {
     outline: none;
     border: none;
     border-bottom: 2px solid var(--color-border);
+}
+
+/* ----- Gradient ----- */
+.gradient {
+    height: 1rem;
+    background-color: green;
+    border-radius: 0.5rem;
+    padding-inline: 0.5rem;
+}
+
+.gradient .track {
+    position: relative;
+    height: 100%;
+}
+
+.gradient .track .marker {
+    cursor: pointer;
+    width: 1.125rem;
+    height: 1.125rem;
+    position: absolute;
+    top: -0.0625rem;
+    left: 50%;
+    background-color: green;
+    border: 2px solid white;
+    border-radius: 0.5625rem;
+    transform: TranslateX(-50%);
+    box-shadow: var(--shadow-gradient-marker);
+    box-sizing: border-box;
+}
+
+.gradient .track .marker.active {
+    width: 1.25rem;
+    height: 1.25rem;
+    top: -0.125rem;
+    border-radius: 0.675rem;
+}
+
+/* ----- Color Picker ----- */
+.color-picker {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: stretch;
+    background-color: var(--color-background-0);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    box-shadow: var(--shadow-panel);
+}
+
+.color-picker .color-area {
+    cursor: pointer;
+    height: 100px;
+    background:
+        linear-gradient(to top, black 0%, transparent 100%),
+        linear-gradient(to right, #ffffff 0%, hsl(0, 100%, 50%) 100%);
+    border-radius: 0.25rem;
+    border: 1px solid var(--color-border);
+    padding: 0.25rem;
+}
+
+.color-picker .color-area-track {
+    position: relative;
+    height: 100%;
+}
+
+.color-picker .color-area .thumb {
+    pointer-events: none;
+    position: absolute;
+    width: 0.875rem;
+    height: 0.875rem;
+    border: 3px solid white;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+    transform: translate(-50%, -50%);
+    box-shadow: var(--shadow-color-picker-thumb);
+}
+
+.color-picker .inputs {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25rem;
+}
+
+.slider-hue {
+    appearance: none;
+    -webkit-appearance: none;
+    background: linear-gradient(to right, 
+        #ff0000 0%,
+        #ffff00 16.5%,
+        #00ff00 33%, 
+        #00ffff 49.5%,
+        #0000ff 66%, 
+        #ff00ff 82.5%,
+        #ff0000 100%);
+    outline: none;
+    cursor: pointer;
+    height: 0.625rem;
+    border-radius: 0.3125rem;
+    margin: 0.125rem;
+}
+
+.slider-hue::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 3px solid var(--color-slider-thumb);
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-color-picker-thumb);
+}
+
+.slider-hue::-moz-range-thumb {
+    border: 2px solid var(--color-slider-thumb);
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 0.375rem;
+    box-shadow: var(--shadow-slider-thumb);
 }
 
 /* ----- Header ----- */
@@ -276,10 +401,9 @@ header .separator {
 
 .section {
     padding: 1rem;
-}
-
-.section-heading {
-    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 /* ----- Labelled Field ----- */
@@ -287,21 +411,30 @@ header .separator {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: 0.5rem;
 }
 
 .labelled-field.column {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.5rem;
 }
 
-.labelled-field.column > .field {
-    width: 100%;
+.labelled-field.column.reverse {
+    flex-direction: column-reverse;
+    gap: 0.125rem;
 }
 
 .labelled-field > .label {
     margin: 0;
     min-width: 10ch;
+}
+
+.labelled-field.column > .label {
+    min-width: 0;
+}
+
+.labelled-field.column.center > .label {
+    text-align: center;
 }
 
 .field {
@@ -321,6 +454,7 @@ header .separator {
     flex: none;
     margin-inline: 0.125rem;
     text-align: right;
+    font-weight: 500;
 }
 
 .field > .unit {
@@ -342,27 +476,17 @@ header .separator {
     padding: 0;
     flex-direction: column;
     align-items: stretch;
+    gap: 0.5rem;
 }
 
 .field.field-color .color-block {
     background-color: white;
     height: calc(1em + 0.5rem);
     aspect-ratio: 1 / 1;
-    border-radius: 0.125rem;
+    border-radius: 0.25rem;
     margin-right: 0.25rem;
-}
-
-.gradient {
-    width: 100%;
-}
-
-.gradient .track {
-    height: 1rem;
-}
-
-.gradient .bar {
-    height: 2rem;
-    background-color: white;
+    cursor: pointer;
+    border: 1px solid var(--color-border);
 }
 
 .field-slider .slider,
