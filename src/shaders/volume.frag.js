@@ -25,7 +25,7 @@ void main() {
     int steps = int(ray_dist / step_size);
 
     for (int i = 0; i < steps; i++) {
-        if (all(greaterThan(ray_pos, u_slice_min)) ||
+        if (all(greaterThan(ray_pos, u_slice_min)) &&
             all(lessThan(ray_pos, u_slice_max))) {
             float density = texture(u_volume, ray_pos).r;
             float t = (density - u_density_min) / (u_density_max - u_density_min);

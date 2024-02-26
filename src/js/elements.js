@@ -1,161 +1,11 @@
-// Helper functions
-
-/**
- * Clamps a value to the range [min-max]
- * @param {number} value The value to clamp
- * @param {number} min The range minimum
- * @param {number} max The range maximum
- * @returns {number} The clamped value
- */
-function clamp(value, min, max) {
-    return Math.min(max, Math.max(min, value));
-}
-
-/**
- * Calculates a position relative to an elements position and size.
- * Value can be clamped withing the bounds of the rect [0, 1]
- * Returns x, y relative coordinates
- *
- * @param {HTMLElement} element The relative element
- * @param {number} posX The global X position
- * @param {number} posY The global Y position
- * @param {bool} clampResult Should the resulting position be clamped
- * @return {x: number, y: number} The relative X, Y position
- */
-function calculateRelativePosition(element, posX, posY, clampResult = true) {
-    const rect = element.getBoundingClientRect();
-    let percentX = (posX - rect.left) / rect.width;
-    let percentY = (posY - rect.top) / rect.height;
-    if(clampResult) {
-        percentX = clamp(percentX, 0.0, 1.0);
-        percentY = clamp(percentY, 0.0, 1.0);
-    }
-    return {x: percentX, y: percentY};
-}
-
-/**
- * Converts an RGB color value to HSV.
- * Assumes r, g, and b [0, 255].
- * Returns h [0-360], s [0-100], and v [0-100].
- *
- * @param {number} r The red color value
- * @param {number} g The green color value
- * @param {number} b The blue color value
- * @return {h: number, s: number: v: number} The HSV representation
- */
-function rgbToHsv(r, g, b) {
-    r /= 255, g /= 255, b /= 255;
-  
-    let max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h, s, v = max;
-  
-    let d = max - min;
-    s = max == 0 ? 0 : d / max;
-  
-    if (max == min) {
-      h = 0;
-    } else {
-      switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
-      }
-  
-      h /= 6;
-    }
-    return {
-        h: Math.round(h * 360),
-        s: Math.round(s * 100),
-        v: Math.round(v * 100)
-    };
-  }
-
-/**
- * Converts an HSV color value to RGB.
- * Assumes h [0, 360], s [0, 100], and v [0, 100].
- * Returns r, g, and b [0, 255].
- *
- * @param {number} h The hue
- * @param {number} s The saturation
- * @param {number} v The value
- * @return {{r: number, g: number, b: number}} The RGB representation
- */
-function hsvToRgb(h, s, v) {
-    h /= 360;
-    s /= 100;
-    v /= 100;
-    let r, g, b, i, f, p, q, t;
-    i = Math.floor(h * 6);
-    f = h * 6 - i;
-    p = v * (1 - s);
-    q = v * (1 - f * s);
-    t = v * (1 - (1 - f) * s);
-    switch (i % 6) {
-        case 0: r = v, g = t, b = p; break;
-        case 1: r = q, g = v, b = p; break;
-        case 2: r = p, g = v, b = t; break;
-        case 3: r = p, g = q, b = v; break;
-        case 4: r = t, g = p, b = v; break;
-        case 5: r = v, g = p, b = q; break;
-    }
-    return {
-        r: Math.round(r * 255),
-        g: Math.round(g * 255),
-        b: Math.round(b * 255)
-    };
-}
-
-/**
- * Converts byte [0-255] into two digit hex string
- * @param {number} b The byte value
- * @returns {string} Two digit hex string
- */
-function byteToHex(b) {
-    let hex = b.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
-}
-
-/**
- * Converts r, g, and b value [0-255] to hex string
- * @param {number} r The r value
- * @param {number} g The g value
- * @param {number} b The b value
- * @returns {string}
- */
-function rgbToHex(r, g, b) {
-    return byteToHex(r) + byteToHex(g) + byteToHex(b);
-}
-
-/**
- * Converts hex string into rgb values
- * @param {number} hex The hex value
- * @returns {r: number, g: number, b: number}
- */
-function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-}
-
-/**
- * Parse rgb string "rgb(r, g, b)" into 
- * component parts
- * @param {string} rgb 
- * @returns {r: number, g: number, b: number}
- */
-function parseRgb(rgb) {
-    const split = rgb.match(/\d+/g);
-    return {r: parseInt(split[0]), g: parseInt(split[1]), b: parseInt(split[2])};
-}
+import * as Util from "./util.js";
+import * as ElementUtil from "./util_element.js";
 
 // Setup custom elements
 
 // Setup slider behavior
 function setSliderValue(slider, value) {
-    value = clamp(value, slider.min, slider.max);
+    value = Util.clamp(value, slider.min, slider.max);
     slider.value = value;
     const progress = (value / slider.max) * 100;
     slider.style.background = `linear-gradient(to right,
@@ -259,7 +109,7 @@ for(let i = 0; i < rangeSliderFields.length; i++) {
     rangeSlider.addEventListener("valuechange", (event) => {
         labels[0].innerHTML = event.detail.min;
         labels[1].innerHTML = event.detail.max;
-        rangeSliderField.dispatchEvent(new CustomEvent("valuechange", {detail: {min: min, max: max}}));
+        rangeSliderField.dispatchEvent(new CustomEvent("valuechange", {detail: {min: event.detail.min, max: event.detail.max}}));
     });
 }
 
@@ -293,7 +143,7 @@ function showColorPicker(element, changeListener, color) {
     colorPicker.style.top = `${rect.top}px`;
 
     // Set color
-    const hsv = rgbToHsv(color.r, color.g, color.b);
+    const hsv = Util.rgbToHsv(color.r, color.g, color.b);
     colorAreaThumb.style.left = `${hsv.s}%`;
     colorAreaThumb.style.top = `${100 - hsv.v}%`;
     colorHueSlider.value = hsv.h;
@@ -318,7 +168,7 @@ function updateColorPicker() {
     const hue = colorHueSlider.value;
     const saturation = parseFloat(colorAreaThumb.style.left);
     const value = 100.0 - parseFloat(colorAreaThumb.style.top);
-    const color = hsvToRgb(hue, saturation, value);
+    const color = Util.hsvToRgb(hue, saturation, value);
 
     colorArea.style.background =
         `linear-gradient(to top, black 0%, transparent 100%),
@@ -330,7 +180,7 @@ function updateColorPicker() {
 
 colorArea.addEventListener("mousedown", (event) => {
     // Jump thumb to click
-    const relPos = calculateRelativePosition(colorAreaThumb.parentElement, event.clientX, event.clientY);
+    const relPos = Util.calculateRelativePosition(colorAreaThumb.parentElement, event.clientX, event.clientY);
     colorAreaThumb.style.left = `${relPos.x * 100}%`;
     colorAreaThumb.style.top = `${relPos.y * 100}%`;
     updateColorPicker();
@@ -338,7 +188,7 @@ colorArea.addEventListener("mousedown", (event) => {
     // Handle thumb drag
     let thumbMoveHandler = function(event) {
         event.preventDefault();
-        const relPos = calculateRelativePosition(colorAreaThumb.parentElement, event.clientX, event.clientY);
+        const relPos = Util.calculateRelativePosition(colorAreaThumb.parentElement, event.clientX, event.clientY);
         colorAreaThumb.style.left = `${relPos.x * 100}%`;
         colorAreaThumb.style.top = `${relPos.y * 100}%`;
         updateColorPicker();
@@ -364,7 +214,7 @@ for(let i = 0; i < gradientFields.length; i++) {
     if(gradient.dataset.format === "rgb") {
         const colorField = gradientField.querySelector(".field-color");
         gradient.addEventListener("activemarkerchange", (event) => {
-            const color = parseRgb(event.detail.marker.style.backgroundColor);
+            const color = Util.parseRgb(event.detail.marker.style.backgroundColor);
             setColorFieldColor(colorField, color);
         });
         colorField.addEventListener("valuechange", (event) => {
@@ -373,7 +223,7 @@ for(let i = 0; i < gradientFields.length; i++) {
     } else if(gradient.dataset.format === "a") {
         const opacityField = gradientField.querySelector(".field-slider");
         gradient.addEventListener("activemarkerchange", (event) => {
-            const color = parseRgb(event.detail.marker.style.backgroundColor);
+            const color = Util.parseRgb(event.detail.marker.style.backgroundColor);
             const a = Math.round((color.r / 255) * 100);
             setSliderFieldValue(opacityField, a);
         });
@@ -389,7 +239,7 @@ for(let i = 0; i < gradientFields.length; i++) {
 
 // Setup gradient behavior
 function setGradientMarkerColor(gradient, color) {
-    const hex = rgbToHex(color.r, color.g, color.b);
+    const hex = Util.rgbToHex(color.r, color.g, color.b);
     const markers = gradient.querySelectorAll(".marker");
     for(let i = 0; i < markers.length; i++) {
         const marker = markers[i];
@@ -401,19 +251,8 @@ function setGradientMarkerColor(gradient, color) {
     recalculateGradient(gradient);
 }
 
-function getMarkerData(gradient) {
-    const markers = gradient.querySelectorAll(".marker");
-    const markerData = [];
-    for(let markerIndex = 0; markerIndex < markers.length; markerIndex++) {
-        const marker = markers[markerIndex];
-        markerData.push({percent: parseFloat(marker.style.left), color: marker.style.backgroundColor});
-    }
-    markerData.sort((a, b) => {return a.percent - b.percent});
-    return markerData;
-}
-
 function recalculateGradient(gradient) {
-    const markers = getMarkerData(gradient);
+    const markers = ElementUtil.getMarkerData(gradient);
     let linearGradient = "";
     for(let i = 0; i < markers.length; i++) {
         const data = markers[i];
@@ -421,25 +260,6 @@ function recalculateGradient(gradient) {
     }
     gradient.style.background = `linear-gradient(to right${linearGradient})`;
     gradient.dispatchEvent(new CustomEvent("gradientchange", {detail: {data: markers}}));
-}
-
-function sampleGradient(gradient, percent) {
-    const markers = getMarkerData(gradient);
-    let i = 0;
-    while(i < markers.length) {
-        if(markers[i].percent > percent) {
-            break;
-        }
-        i++;
-    }
-    const c1 = parseRgb(markers[i - 1].color);
-    const c2 = parseRgb(markers[i].color);
-    const t2 = (percent - markers[i - 1].percent) / 100;
-    return {
-        r: Math.round(c1.r + (c2.r - c1.r) * t2),
-        g: Math.round(c1.g + (c2.g - c1.g) * t2),
-        b: Math.round(c1.b + (c2.b - c1.b) * t2),
-    }
 }
 
 const gradients = document.getElementsByClassName("gradient");
@@ -468,7 +288,7 @@ for(let i = 0; i < gradients.length; i++) {
         marker.classList.add("marker");
         marker.style.left = `${percent}%`
         if (color == null) {
-            color = sampleGradient(gradient, percent);
+            color = ElementUtil.sampleGradient(gradient, percent);
         }
         marker.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
         activateMarker(marker);
@@ -480,7 +300,7 @@ for(let i = 0; i < gradients.length; i++) {
             if(!fixed) {
                 let markerMoveHandler = function(event) {
                     event.preventDefault();
-                    const relPos = calculateRelativePosition(track, event.clientX, 0);
+                    const relPos = Util.calculateRelativePosition(track, event.clientX, 0);
                     marker.style.left = `${relPos.x * 100}%`;
                     recalculateGradient(gradient);
                 };
@@ -502,7 +322,7 @@ for(let i = 0; i < gradients.length; i++) {
     });
 
     gradient.addEventListener("mousedown", (event) => {
-        const relPos = calculateRelativePosition(track, event.clientX, 0);
+        const relPos = Util.calculateRelativePosition(track, event.clientX, 0);
         addMarker(relPos.x * 100);
     });
 
@@ -517,7 +337,7 @@ function setColorFieldColor(colorField, color) {
     const colorBlock = colorField.querySelector(".color-block");
     colorBlock.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
     const label = colorField.querySelector(".label");
-    label.innerHTML = rgbToHex(color.r, color.g, color.b).toUpperCase();
+    label.innerHTML = Util.rgbToHex(color.r, color.g, color.b).toUpperCase();
 }
 
 const colorFields = document.getElementsByClassName("field-color");
@@ -532,7 +352,7 @@ for(let i = 0; i < colorFields.length; i++) {
     };
 
     colorBlock.addEventListener("click", (event) => {
-        const color = parseRgb(colorBlock.style.backgroundColor);
+        const color = Util.parseRgb(colorBlock.style.backgroundColor);
         showColorPicker(colorField, colorPickerChangeListener, color);
     });
 }

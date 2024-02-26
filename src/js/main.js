@@ -1,10 +1,11 @@
-import * as THREE from "three"
-import { OrbitControls } from "three/addons/controls/OrbitControls.js"
-import { NRRDLoader } from "./nrrd_loader.js"
-import { VolumeDataset } from "./volume_dataset.js"
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { NRRDLoader } from "./nrrd_loader.js";
+import { VolumeDataset } from "./volume_dataset.js";
+import * as ElementUtil from "./util_element.js";
 
-import vertexShader from "../shaders/volume.vert.js"
-import fragmentShader from "../shaders/volume.frag.js"
+import vertexShader from "../shaders/volume.vert.js";
+import fragmentShader from "../shaders/volume.frag.js";
 
 const scene = new THREE.Scene();
 const viewport = document.getElementById("viewport");
@@ -109,6 +110,55 @@ openFileInput.addEventListener("change", (event) => {
         fileReader.readAsArrayBuffer(files[0]);
     }
 });
+
+const brightnessField = document.getElementById("brightness-field");
+brightnessField.addEventListener("valuechange", (event) => {});
+
+const contrastField = document.getElementById("contrast-field");
+contrastField.addEventListener("valuechange", (event) => {});
+
+const colorMapField = document.getElementById("color-map-field");
+colorMapField.addEventListener("valuechange", resampleTransferFunction);
+
+const opacityMapField = document.getElementById("opacity-map-field");
+opacityMapField.addEventListener("valuechange", resampleTransferFunction);
+
+function resampleTransferFunction() {
+    const data = new Uint8Array(256 * 4); // 256 rgba values
+    const colorGradient = colorMapField.querySelector(".gradient");
+    const opacityGradient = opacityMapField.querySelector(".gradient");
+    const step = 100 / 256;
+    for(let i = 0; i < 256; i++) {
+        const percent = i * step;
+        const rgb = ElementUtil.sampleGradient(colorGradient, percent);
+        const a =  ElementUtil.sampleGradient(opacityGradient, percent).r;
+        data[i * 4 + 0] = rgb.r;
+        data[i * 4 + 1] = rgb.g;
+        data[i * 4 + 2] = rgb.b;
+        data[i * 4 + 3] = a;
+    }
+    const transferFunc = new THREE.DataTexture(data, 256, 1);
+    transferFunc.needsUpdate = true;
+    volume.material.uniforms.u_transfer_func.value = transferFunc;
+    volume.material.needsUpdate = true;
+}
+
+function setSlice(index, min, max) {
+    min /= 100;
+    max /= 100;
+    volume.material.uniforms.u_slice_min.value.setComponent(index, min);
+    volume.material.uniforms.u_slice_max.value.setComponent(index, max);
+    volume.material.needsUpdate = true;
+}
+
+const xSliceField = document.getElementById("x-slice-field");
+xSliceField.addEventListener("valuechange", (event) => setSlice(0, event.detail.min, event.detail.max));
+
+const ySliceField = document.getElementById("y-slice-field");
+ySliceField.addEventListener("valuechange", (event) => setSlice(1, event.detail.min, event.detail.max));
+
+const zSliceField = document.getElementById("z-slice-field");
+zSliceField.addEventListener("valuechange", (event) => setSlice(2, event.detail.min, event.detail.max));
 
 function update()  {
     requestAnimationFrame(update);
