@@ -89,6 +89,22 @@ function create_volume_mesh() {
     return new THREE.Mesh(geometry, material);
 }
 
+Number.prototype.mapRange = function (inMin, inMax, outMin, outMax) {
+    return (this - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+}
+
+function normalizeValue(type, value) {
+    switch(type) {
+        case THREE.FloatType: return range;
+        case THREE.ByteType: return value.mapRange(-128, 127, 0, 1);
+        case THREE.UnsignedByteType: return value.mapRange(0, 255, 0, 1);
+        case THREE.ShortType: return value.mapRange(-32768, 32767, 0, 1);
+        case THREE.UnsignedShortType: return value.mapRange(0, 65535, 0, 1);
+        case THREE.IntType: return value.mapRange(-2147483648, 2147483647, 0, 1);
+        case THREE.UnsignedIntType: return value.mapRange(0, 4294967295, 0, 1);
+    }
+}
+
 const openFileInput = document.getElementById("open-file-input");
 openFileInput.addEventListener("change", (event) => {
     const files = openFileInput.files;
@@ -98,10 +114,13 @@ openFileInput.addEventListener("change", (event) => {
             try {
                 const loader = new NRRDLoader();
                 let dataset = loader.parse(event.target.result);
-                const volumeTexture = new THREE.Data3DTexture(dataset.data, dataset.xLength, dataset.yLength, dataset.zLength);
+                const volumeTexture = new THREE.Data3DTexture(dataset.data, dataset.dimensions[0], dataset.dimensions[1], dataset.dimensions[2]);
                 volumeTexture.format = THREE.RedFormat;
+                volumeTexture.type = dataset.type;
                 volume.material.uniforms.u_volume.value = volumeTexture;
                 volume.material.uniforms.u_volume.value.needsUpdate = true;
+                volume.material.uniforms.u_density_min.value = normalizeValue(dataset.type, dataset.min);
+                volume.material.uniforms.u_density_max.value = normalizeValue(dataset.type, dataset.max);
                 volume.material.needsUpdate = true;
             } catch (error) {
                 console.log(error);
