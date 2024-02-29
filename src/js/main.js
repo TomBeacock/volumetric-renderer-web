@@ -2,24 +2,25 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { NRRDLoader } from "./nrrd_loader.js";
 import { VolumeDataset } from "./volume_dataset.js";
+import * as Util from "./util.js";
 import * as ElementUtil from "./util_element.js";
 
 import vertexShader from "../shaders/volume.vert.js";
 import fragmentShader from "../shaders/volume.frag.js";
 
 const scene = new THREE.Scene();
-const viewport = document.getElementById("viewport");
+const viewport = document.getElementById("context-container");
+const context = document.getElementById("context");
 
 const camera = new THREE.PerspectiveCamera(75, viewport.offsetWidth / viewport.offsetHeight, 0.1, 1000);
-const controls = new OrbitControls(camera, viewport);
+const controls = new OrbitControls(camera, context);
 controls.zoomSpeed = 1.5;
 camera.position.set(0, 0, 2);
 controls.update();
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({canvas: context});
 renderer.setSize(viewport.offsetWidth, viewport.offsetHeight);
 renderer.setClearColor(new THREE.Color(0x1b1b1b));
-viewport.appendChild(renderer.domElement);
 
 const volume = create_volume_mesh();
 scene.add(volume);
@@ -89,21 +90,36 @@ function create_volume_mesh() {
     return new THREE.Mesh(geometry, material);
 }
 
-Number.prototype.mapRange = function (inMin, inMax, outMin, outMax) {
-    return (this - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-}
-
 function normalizeValue(type, value) {
     switch(type) {
-        case THREE.FloatType: return range;
-        case THREE.ByteType: return value.mapRange(-128, 127, 0, 1);
-        case THREE.UnsignedByteType: return value.mapRange(0, 255, 0, 1);
-        case THREE.ShortType: return value.mapRange(-32768, 32767, 0, 1);
-        case THREE.UnsignedShortType: return value.mapRange(0, 65535, 0, 1);
-        case THREE.IntType: return value.mapRange(-2147483648, 2147483647, 0, 1);
-        case THREE.UnsignedIntType: return value.mapRange(0, 4294967295, 0, 1);
+        case THREE.FloatType: return value;
+        case THREE.ByteType: return Util.mapRange(value, -128, 127, 0, 1);
+        case THREE.UnsignedByteType: return Util.mapRange(value, 0, 255, 0, 1);
+        case THREE.ShortType: return Util.mapRange(value, -32768, 32767, 0, 1);
+        case THREE.UnsignedShortType: return Util.mapRange(value, 0, 65535, 0, 1);
+        case THREE.IntType: return Util.mapRange(value, -2147483648, 2147483647, 0, 1);
+        case THREE.UnsignedIntType: return Util.mapRange(value, 0, 4294967295, 0, 1);
     }
 }
+
+let dataset = null;
+let currentFrame = 0;
+
+const player = document.getElementById("player");
+function updateFrame() {
+    if(dataset == null) {
+        return;
+    }
+    const data = dataset.getFrameData(currentFrame);
+    const volumeTexture = new THREE.Data3DTexture(data, dataset.dimensions[0], dataset.dimensions[1], dataset.dimensions[2]);
+    volumeTexture.format = THREE.RedFormat;
+    volumeTexture.type = dataset.type;
+    volume.material.uniforms.u_volume.value = volumeTexture;
+    volume.material.uniforms.u_volume.value.needsUpdate = true;
+    volume.material.uniforms.u_density_min.value = normalizeValue(dataset.type, dataset.min);
+    volume.material.uniforms.u_density_max.value = normalizeValue(dataset.type, dataset.max);
+    volume.material.needsUpdate = true;
+};
 
 const openFileInput = document.getElementById("open-file-input");
 openFileInput.addEventListener("change", (event) => {
@@ -113,15 +129,12 @@ openFileInput.addEventListener("change", (event) => {
         fileReader.addEventListener("load", (event) => {
             try {
                 const loader = new NRRDLoader();
-                let dataset = loader.parse(event.target.result);
-                const volumeTexture = new THREE.Data3DTexture(dataset.data, dataset.dimensions[0], dataset.dimensions[1], dataset.dimensions[2]);
-                volumeTexture.format = THREE.RedFormat;
-                volumeTexture.type = dataset.type;
-                volume.material.uniforms.u_volume.value = volumeTexture;
-                volume.material.uniforms.u_volume.value.needsUpdate = true;
-                volume.material.uniforms.u_density_min.value = normalizeValue(dataset.type, dataset.min);
-                volume.material.uniforms.u_density_max.value = normalizeValue(dataset.type, dataset.max);
-                volume.material.needsUpdate = true;
+                dataset = loader.parse(event.target.result);
+                currentFrame = 0;
+                ElementUtil.setPlayerFrame(player, currentFrame);
+                ElementUtil.setPlayerFrameCount(player, dataset.frameCount);
+                player.style.display = dataset.frameCount > 1 ? "" : "none";
+                updateFrame();
             } catch (error) {
                 console.log(error);
             }
@@ -180,10 +193,15 @@ const zSliceField = document.getElementById("z-slice-field");
 zSliceField.addEventListener("valuechange", (event) => setSlice(2, event.detail.min, event.detail.max));
 
 function update()  {
-    requestAnimationFrame(update);
+    const playerFrame = ElementUtil.getPlayerFrame(player);
+    if(currentFrame != playerFrame) {
+        currentFrame = playerFrame;
+        updateFrame();
+    }
     volume.material.uniforms.u_view_matrix.value = camera.matrixWorldInverse;
     volume.material.uniforms.u_camera_position.value = camera.position;
     renderer.render(scene, camera);
+    requestAnimationFrame(update);
 }
 
 update();

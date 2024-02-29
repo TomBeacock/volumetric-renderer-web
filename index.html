@@ -7,7 +7,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&family=Poppins:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
         <link rel="stylesheet" href="src/css/style.css">
     </head>
     <body>
@@ -50,22 +50,60 @@
         <header>
             <div class="header-section">
                 <div id="open-file-button" class="button">
-                    <span class="material-symbols-outlined">file_open</span>
+                    <span class="material-symbols-rounded">file_open</span>
                 </div>
             </div>
             <div class="separator"></div>
             <div class="fill"></div>
             <div id="theme-toggle-button-group" class="toggle-button-group header-section">
                 <div class="toggle-button" data-name="light-mode">
-                    <span class="material-symbols-outlined">light_mode</span>
+                    <span class="material-symbols-rounded">light_mode</span>
                 </div>
-                <div class="toggle-button selected" data-name="dark-mode">
-                    <span class="material-symbols-outlined">dark_mode</span>
+                <div class="toggle-button on" data-name="dark-mode">
+                    <span class="material-symbols-rounded">dark_mode</span>
                 </div>
             </div>
         </header>
         <div class="main-area">
-            <div id="viewport" class="panel viewport"></div>
+            <div class="panel viewport">
+                <div id="context-container" class="context-container">
+                    <canvas id="context" class="context"></canvas>
+                </div>
+                <div id="player" class="player" style="display: none;">
+                    <div class="field field-player-progress">
+                        <span class="label">1</span>
+                        <input class="slider" type="range" min="0" max="0" value="0"/>
+                        <span class="label">1</span>
+                    </div>
+                    <div class="controls">
+                        <div id="skip-start-button" class="button">
+                            <span class="material-symbols-rounded">skip_previous</span>
+                        </div>
+                        <div id="play-pause-button" class="toggle-button play-pause">
+                            <span class="material-symbols-rounded"></span>
+                        </div>
+                        <div id="skip-end-button" class="button">
+                            <span class="material-symbols-rounded">skip_next</span>
+                        </div>
+                        <div id="reverse-button" class="toggle-button">
+                            <span class="material-symbols-rounded">device_reset</span>
+                        </div>
+                        <div id="repeat-button" class="toggle-button">
+                            <span class="material-symbols-rounded">repeat</span>
+                        </div>
+                        <div class="fill"></div>
+                        <div class="labelled-field">
+                            <span class="label">Rate</span>
+                            <div class="field field-text">
+                                <input type="text"/>
+                                <span class="unit">hz</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--<div class="viewport-controls">
+                </div>-->
+            </div>
             <div class="panel properties">
                 <div class="section">
                     <h2>Display</h2>

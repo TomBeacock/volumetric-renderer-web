@@ -218,9 +218,7 @@ class NRRDLoader extends THREE.Loader {
 		const parsedData = parseData(header, rawData);
 		const range = computeDataRange(parsedData);
 
-		const volume = new VolumeDataset();
-		volume.setData(header.sizes, header.type, parsedData, range.min, range.max);
-		return volume;
+		return new VolumeDataset(header.sizes, header.type, parsedData, range.min, range.max);
 	}
 }
 

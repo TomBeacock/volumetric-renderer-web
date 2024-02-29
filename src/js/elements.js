@@ -4,20 +4,11 @@ import * as ElementUtil from "./util_element.js";
 // Setup custom elements
 
 // Setup slider behavior
-function setSliderValue(slider, value) {
-    value = Util.clamp(value, slider.min, slider.max);
-    slider.value = value;
-    const progress = (value / slider.max) * 100;
-    slider.style.background = `linear-gradient(to right,
-        var(--color-accent-0) ${progress}%,
-        var(--color-slider-track) ${progress}%)`;
-}
-
 const sliders = document.getElementsByClassName("slider");
 for(let i = 0; i < sliders.length; i++) {
     const slider = sliders[i];
-    setSliderValue(slider, slider.value);
-    slider.addEventListener("input", (event) => setSliderValue(slider, slider.value));
+    ElementUtil.setSliderValue(slider, slider.value);
+    slider.addEventListener("input", (event) => ElementUtil.setSliderValue(slider, slider.value));
 }
 
 // Setup range slider behavior
@@ -53,40 +44,54 @@ for(let i = 0; i < rangeSliders.length; i++) {
     slider2.addEventListener("input", sliderEventListener);
 }
 
+// Setup toggle button behavior
+const toggleButtons = document.getElementsByClassName("toggle-button");
+for(let i = 0; i < toggleButtons.length; i++) {
+    const toggleButton = toggleButtons[i];
+    toggleButton.addEventListener("click", (event) => {
+        const on = !toggleButton.classList.contains("on");
+        ElementUtil.setToggleButtonOn(toggleButton, on);
+        toggleButton.dispatchEvent(new CustomEvent("toggle", {detail: {on: on}}));
+    });
+}
+
 // Setup toggle button group behavior
 const toggleButtonGroups = document.getElementsByClassName("toggle-button-group");
-for (let groupIndex = 0; groupIndex < toggleButtonGroups.length; groupIndex++) {
-    const group = toggleButtonGroups[groupIndex];
+for (let i = 0; i < toggleButtonGroups.length; i++) {
+    const toggleButtonGroup = toggleButtonGroups[i];
 
-    const buttons = group.children;
-    for (let buttonIndex = 0; buttonIndex < buttons.length; buttonIndex++) {
-        const button = buttons[buttonIndex];
-        button.addEventListener("click", (event) => {
-            if(!button.classList.contains("selected")) {
-                const event = new CustomEvent("selectionchange", {detail: button.dataset.name})
-                group.dispatchEvent(event);
+    const toggleButtons = toggleButtonGroup.querySelectorAll(".toggle-button");
+    for (let j = 0; j < toggleButtons.length; j++) {
+        const toggleButton = toggleButtons[j];
+        toggleButton.addEventListener("toggle", (event) => {
+            const on = event.detail.on;
+            if(on) {
+                // Turn off other
+                for(let k = 0; k < toggleButtons.length; k++) {
+                    const otherToggleButton = toggleButtons[k];
+                    if(otherToggleButton != toggleButton && otherToggleButton.classList.contains("on")) {
+                        otherToggleButton.classList.remove("on");
+                        break;
+                    }
+                }
+                toggleButtonGroup.dispatchEvent(
+                    new CustomEvent("selectionchange", {detail: toggleButton.dataset.name})
+                );
+            } else {
+                // Can't turn off self
+                toggleButton.classList.add("on");
             }
-            for (let i = 0; i < group.children.length; i++) {
-                group.children[i].classList.remove("selected");
-            }
-            button.classList.add("selected");
         });
     }
 }
 
 // Setup slider field behavior
-function setSliderFieldValue(sliderField, value) {
-    const slider = sliderField.querySelector(".slider");
-    setSliderValue(slider, value);
-    const label = sliderField.querySelector(".label");
-    label.innerHTML = slider.value;
-}
-
 const sliderFields = document.getElementsByClassName("field-slider");
 for(let i = 0; i < sliderFields.length; i++) {
     const sliderField = sliderFields[i];
     const slider = sliderField.querySelector(".slider");
     const label = sliderField.querySelector(".label");
+    ElementUtil.setSliderFieldRange(sliderField, slider.min, slider.max);
     label.innerHTML = slider.value;
     slider.addEventListener("input", (event) => {
         label.innerHTML = slider.value;
@@ -225,7 +230,7 @@ for(let i = 0; i < gradientFields.length; i++) {
         gradient.addEventListener("activemarkerchange", (event) => {
             const color = Util.parseRgb(event.detail.marker.style.backgroundColor);
             const a = Math.round((color.r / 255) * 100);
-            setSliderFieldValue(opacityField, a);
+            ElementUtil.setSliderFieldValue(opacityField, a);
         });
         opacityField.addEventListener("valuechange", (event) => {
             const a = Math.round((event.detail.value / 100) * 255);
@@ -356,3 +361,88 @@ for(let i = 0; i < colorFields.length; i++) {
         showColorPicker(colorField, colorPickerChangeListener, color);
     });
 }
+
+// Setup player progress field behavior
+const playerProgressFields = document.getElementsByClassName("field-player-progress");
+for(let i = 0; i < playerProgressFields.length; i++) {
+    const playerProgressField = playerProgressFields[i];
+    const progressSlider = playerProgressField.querySelector(".slider");
+    progressSlider.addEventListener("input", (event) => {
+        playerProgressField.dispatchEvent(new CustomEvent("valuechange", {detail: {value: progressSlider.value}}));
+    });
+}
+
+// Setup player behavior
+const player = document.getElementById("player");
+player.dataset["playing"] = false;
+player.dataset["frame"] = 1;
+player.dataset["frameCount"] = 1;
+player.dataset["reverse"] = false;
+player.dataset["repeat"] = false;
+
+const playerProgressField = player.querySelector(".field-player-progress");
+playerProgressField.addEventListener("valuechange", (event) => {
+    ElementUtil.setPlayerFrame(player, event.detail.value);
+});
+
+const skipStartButton = document.getElementById("skip-start-button");
+skipStartButton.addEventListener("click", (event) => ElementUtil.setPlayerFrame(player, 0));
+
+const playPauseButton = document.getElementById("play-pause-button");
+playPauseButton.addEventListener("toggle", (event) => ElementUtil.setPlayerPlaying(player, event.detail.on));
+
+const skipEndButton = document.getElementById("skip-end-button");
+skipEndButton.addEventListener("click", (event) => ElementUtil.setPlayerFrame(player, player.dataset["frameCount"] - 1));
+
+const reverseButton = document.getElementById("reverse-button");
+reverseButton.addEventListener("toggle", (event) => player.dataset["reverse"] = event.detail.on);
+
+const repeatButton = document.getElementById("repeat-button");
+repeatButton.addEventListener("toggle", (event) => player.dataset["repeat"] = event.detail.on);
+
+const frameRate = 24;
+const period = 1 / frameRate;
+let lastTime;
+function updatePlayer(time) {
+    if(lastTime === undefined) {
+        lastTime = time;
+    }
+    const delta = (time - lastTime) / 1000;
+    if(ElementUtil.isPlayerPlaying(player)) {
+        // Calculate how many frames have passed
+        const frames = Math.floor(delta * frameRate);
+        const unusedTime = delta - frames * period;
+        let frame = ElementUtil.getPlayerFrame(player);
+
+        // Update current frame
+        const frameCount = ElementUtil.getPlayerFrameCount(player);
+        if(ElementUtil.isPlayerReversed(player)) {
+            frame -= frames;
+            if(frame < 0) {
+                if(ElementUtil.isPlayerRepeating(player)) {
+                    frame = Util.mod(frame, frameCount);
+                } else {
+                    frame = 0;
+                    ElementUtil.setPlayerPlaying(player, false);
+                }
+            }
+        } else {
+            frame += frames;
+            if(frame >= frameCount) {
+                if(ElementUtil.isPlayerRepeating(player)) {
+                    frame = Util.mod(frame, frameCount);
+                } else {
+                    frame = frameCount - 1;
+                    ElementUtil.setPlayerPlaying(player, false);
+                }
+            }
+        }
+        ElementUtil.setPlayerFrame(player, frame);
+
+        lastTime = time - (unusedTime * 1000);
+    } else {
+        lastTime = time;
+    }
+    requestAnimationFrame(updatePlayer);
+}
+requestAnimationFrame(updatePlayer);

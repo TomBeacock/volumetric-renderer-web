@@ -10,6 +10,29 @@ export function clamp(value, min, max) {
 }
 
 /**
+ * Mod function that works with negative numbers
+ * @param {number} n The number to mod
+ * @param {number} m The modulo
+ * @returns {number} n mod m
+ */
+export function mod(n, m) {
+    return ((n % m) + m) % m;
+}
+
+/**
+ * Maps a value from in range to out range
+ * @param {number} value The value to map
+ * @param {number} inMin The minimum of in range
+ * @param {number} inMax The maximum of in range
+ * @param {number} outMin The minimum of out range
+ * @param {number} outMax The maximum of out range
+ * @returns {number}
+ */
+export function mapRange(value, inMin, inMax, outMin, outMax) {
+    return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+}
+
+/**
  * Calculates a position relative to an elements position and size.
  * Value can be clamped withing the bounds of the rect [0, 1]
  * Returns x, y relative coordinates
