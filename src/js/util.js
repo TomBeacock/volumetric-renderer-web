@@ -133,7 +133,7 @@ export function hsvToRgb(h, s, v) {
  */
 export function byteToHex(b) {
     let hex = b.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
+    return hex.padStart(2, '0');
 }
 
 /**
@@ -153,7 +153,7 @@ export function rgbToHex(r, g, b) {
  * @returns {r: number, g: number, b: number}
  */
 export function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
         r: parseInt(result[1], 16),
         g: parseInt(result[2], 16),

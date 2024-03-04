@@ -22,27 +22,27 @@
             <div class="inputs">
                 <div class="labelled-field column reverse center">
                     <span class="label">HEX</span>
-                    <div class="field field-text">
+                    <div class="field field-text" data-format="hex">
                         <span class="unit">#</span>
-                        <input type="text"/>
+                        <input type="text" maxlength="6" style="min-width: 7ch; text-transform: uppercase;"/>
                     </div>
                 </div>
                 <div class="labelled-field column reverse center">
                     <span class="label">R</span>
-                    <div class="field field-text">
-                        <input type="text"/>
+                    <div class="field field-text" data-format="natural" data-max="255">
+                        <input type="text" style="min-width: 3ch;"/>
                     </div>
                 </div>
                 <div class="labelled-field column reverse center">
                     <span class="label">G</span>
-                    <div class="field field-text">
-                        <input type="text"/>
+                    <div class="field field-text" data-format="natural" data-max="255">
+                        <input type="text" style="min-width: 3ch;"/>
                     </div>
                 </div>
                 <div class="labelled-field column reverse center">
                     <span class="label">B</span>
-                    <div class="field field-text">
-                        <input type="text"/>
+                    <div class="field field-text" data-format="natural" data-max="255">
+                        <input type="text" style="min-width: 3ch;"/>
                     </div>
                 </div>
             </div>
@@ -94,8 +94,8 @@
                         <div class="fill"></div>
                         <div class="labelled-field">
                             <span class="label">Rate</span>
-                            <div class="field field-text">
-                                <input type="text"/>
+                            <div id="rate-text-field" class="field field-text" data-format="natural" data-min="1">
+                                <input type="text" value="24"/>
                                 <span class="unit">hz</span>
                             </div>
                         </div>

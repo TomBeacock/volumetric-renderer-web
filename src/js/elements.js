@@ -118,6 +118,90 @@ for(let i = 0; i < rangeSliderFields.length; i++) {
     });
 }
 
+// Setup text field behavior
+function isDigit(char) {
+    return char >= '0' && char <= '9';
+}
+
+function isHexDigit(char) {
+    return isDigit(char) ||
+        char >= 'A' && char <= 'F' ||
+        char >= 'a' && char <= 'f';
+}
+
+function isActionKey(char) {
+    return char === "Backspace" ||
+        char === "ArrowRight" ||
+        char === "ArrowLeft" ||
+        char === "ArrowUp" ||
+        char === "ArrowDown" ||
+        char === "Tab";
+}
+
+function getTextFieldValue(textField) {
+    const input = textField.getElementsByTagName("input")[0];
+    if(textField.dataset.format === "natural") {
+        return parseInt(input.value);
+    }
+    return input.value;
+}
+
+function setTextFieldValue(textField, value) {
+    const input = textField.getElementsByTagName("input")[0];
+    input.value = value;
+}
+
+const textFields = document.getElementsByClassName("field-text");
+for(let i = 0; i < textFields.length; i++) {
+    const textField = textFields[i];
+    const input = textField.getElementsByTagName("input")[0];
+    input.addEventListener("focusin", (event) => {
+       input.select(); 
+    });
+    if(textField.dataset.format === "hex") {
+        input.addEventListener("keydown", (event) => {
+            if(!isHexDigit(event.key) && !isActionKey(event.key)) {
+                event.preventDefault();
+            }
+        });
+        input.addEventListener("input", (event) => {
+            let value = input.value.padEnd(input.maxLength, '0');
+            textField.dispatchEvent(new CustomEvent("valuechange", {detail: {value: value}}));
+        });
+        input.addEventListener("focusout", (event) => {            
+            input.value = input.value.padEnd(input.maxLength, '0');
+        });
+    } else if(textField.dataset.format === "natural") {
+        input.addEventListener("keydown", (event) => {
+            if(!isDigit(event.key) && !isActionKey(event.key)) {
+                event.preventDefault();
+            }
+        });
+        input.addEventListener("input", (event) => {
+            let value = parseInt(input.value);
+            if(isNaN(value)) {
+                value = textField.dataset.min || 0;
+            } else {
+                value = Util.clamp(value,
+                    textField.dataset.min || 0,
+                    textField.dataset.max || Infinity);
+            }
+            textField.dispatchEvent(new CustomEvent("valuechange", {detail: {value: value}}));
+        });
+        input.addEventListener("focusout", (event) => {
+            let value = parseInt(input.value);
+            if(isNaN(value)) {
+                value = textField.dataset.min || 0;
+            } else {
+                value = Util.clamp(value,
+                    textField.dataset.min || 0,
+                    textField.dataset.max || Infinity);
+            }
+            input.value = value;
+        });
+    }
+}
+
 // Setup popup behavior
 function showPopup(popup) {
     const closePopupListener = (event) => {
@@ -135,19 +219,24 @@ const colorPicker = document.getElementById("color-picker");
 const colorArea = colorPicker.querySelector(".color-area");
 const colorAreaThumb = colorArea.querySelector(".thumb");
 const colorHueSlider = colorPicker.querySelector(".slider-hue");
+const colorTextFields = colorPicker.querySelectorAll(".field-text");
+const hexTextField = colorTextFields[0];
+const rTextField = colorTextFields[1];
+const gTextField = colorTextFields[2];
+const bTextField = colorTextFields[3];
 
 colorPicker.style.display = "none";
 colorAreaThumb.style.background = "white";
 colorAreaThumb.style.left = 0;
 colorAreaThumb.style.top = 0;
 
-function showColorPicker(element, changeListener, color) {
-    // Set color picker position
-    const rect = element.getBoundingClientRect();
-    colorPicker.style.left = `${rect.right + 8}px`;
-    colorPicker.style.top = `${rect.top}px`;
+function setColorPickerColor(color) {
+    setColorPickerColorArea(color);
+    setColorPickerHexField(color);
+    setColorPickerRgbFields(color, {r: true, g: true, b: true});
+}
 
-    // Set color
+function setColorPickerColorArea(color) {
     const hsv = Util.rgbToHsv(color.r, color.g, color.b);
     colorAreaThumb.style.left = `${hsv.s}%`;
     colorAreaThumb.style.top = `${100 - hsv.v}%`;
@@ -156,6 +245,32 @@ function showColorPicker(element, changeListener, color) {
         `linear-gradient(to top, black 0%, transparent 100%),
         linear-gradient(to right, #ffffff 0%, hsl(${hsv.h}, 100%, 50%) 100%)`;
     colorAreaThumb.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+}
+
+function setColorPickerHexField(color) {
+    setTextFieldValue(hexTextField, Util.rgbToHex(color.r, color.g, color.b));
+}
+
+function setColorPickerRgbFields(color, mask) {
+    if(mask.r) {
+        setTextFieldValue(rTextField, color.r);
+    }
+    if(mask.g) {
+        setTextFieldValue(gTextField, color.g);
+    }
+    if(mask.b) {
+        setTextFieldValue(bTextField, color.b);
+    }
+}
+
+function showColorPicker(element, changeListener, color) {
+    // Set color picker position
+    const rect = element.getBoundingClientRect();
+    colorPicker.style.left = `${rect.right + 8}px`;
+    colorPicker.style.top = `${rect.top}px`;
+
+    // Set color
+    setColorPickerColor(color);
 
     // Setup events
     colorPicker.addEventListener("valuechange", changeListener);
@@ -169,7 +284,7 @@ function showColorPicker(element, changeListener, color) {
     showPopup(colorPicker);
 }
 
-function updateColorPicker() {
+function updateColorPickerColorArea() {
     const hue = colorHueSlider.value;
     const saturation = parseFloat(colorAreaThumb.style.left);
     const value = 100.0 - parseFloat(colorAreaThumb.style.top);
@@ -179,6 +294,9 @@ function updateColorPicker() {
         `linear-gradient(to top, black 0%, transparent 100%),
         linear-gradient(to right, #ffffff 0%, hsl(${hue}, 100%, 50%) 100%)`;
     colorAreaThumb.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+
+    setColorPickerHexField(color);
+    setColorPickerRgbFields(color, {r: true, g: true, b: true});
     
     colorPicker.dispatchEvent(new CustomEvent("valuechange", {detail: {color: color}}))
 }
@@ -188,7 +306,7 @@ colorArea.addEventListener("mousedown", (event) => {
     const relPos = Util.calculateRelativePosition(colorAreaThumb.parentElement, event.clientX, event.clientY);
     colorAreaThumb.style.left = `${relPos.x * 100}%`;
     colorAreaThumb.style.top = `${relPos.y * 100}%`;
-    updateColorPicker();
+    updateColorPickerColorArea();
     
     // Handle thumb drag
     let thumbMoveHandler = function(event) {
@@ -196,7 +314,7 @@ colorArea.addEventListener("mousedown", (event) => {
         const relPos = Util.calculateRelativePosition(colorAreaThumb.parentElement, event.clientX, event.clientY);
         colorAreaThumb.style.left = `${relPos.x * 100}%`;
         colorAreaThumb.style.top = `${relPos.y * 100}%`;
-        updateColorPicker();
+        updateColorPickerColorArea();
     };
 
     // Handle thumb drag end
@@ -208,7 +326,46 @@ colorArea.addEventListener("mousedown", (event) => {
     document.addEventListener("mouseup", thumbReleasedHandler);
 });
 
-colorHueSlider.addEventListener("input", (event) => updateColorPicker());
+colorHueSlider.addEventListener("input", (event) => updateColorPickerColorArea());
+
+hexTextField.addEventListener("valuechange", (event) => {
+    const color = Util.hexToRgb(event.detail.value);
+    setColorPickerColorArea(color);
+    setColorPickerRgbFields(color);
+});
+
+rTextField.addEventListener("valuechange", (event) => {
+    const color = {
+        r: event.detail.value,
+        g: getTextFieldValue(gTextField),
+        b: getTextFieldValue(bTextField),
+    };
+    setColorPickerColorArea(color);
+    setColorPickerHexField(color);
+    setColorPickerRgbFields(color, {r: false, g: true, b: true});
+});
+
+gTextField.addEventListener("valuechange", (event) => {
+    const color = {
+        r: getTextFieldValue(rTextField),
+        g: event.detail.value,
+        b: getTextFieldValue(bTextField),
+    };
+    setColorPickerColorArea(color);
+    setColorPickerHexField(color);
+    setColorPickerRgbFields(color, {r: true, g: false, b: true});
+});
+
+bTextField.addEventListener("valuechange", (event) => {
+    const color = {
+        r: getTextFieldValue(rTextField),
+        g: getTextFieldValue(gTextField),
+        b: event.detail.value,
+    };
+    setColorPickerColorArea(color);
+    setColorPickerHexField(color);
+    setColorPickerRgbFields(color, {r: true, g: true, b: false});
+});
 
 // Setup gradient field behavior
 const gradientFields = document.getElementsByClassName("field-gradient");
@@ -379,6 +536,7 @@ player.dataset["frame"] = 1;
 player.dataset["frameCount"] = 1;
 player.dataset["reverse"] = false;
 player.dataset["repeat"] = false;
+player.dataset["rate"] = 24;
 
 const playerProgressField = player.querySelector(".field-player-progress");
 playerProgressField.addEventListener("valuechange", (event) => {
@@ -400,8 +558,9 @@ reverseButton.addEventListener("toggle", (event) => player.dataset["reverse"] = 
 const repeatButton = document.getElementById("repeat-button");
 repeatButton.addEventListener("toggle", (event) => player.dataset["repeat"] = event.detail.on);
 
-const frameRate = 24;
-const period = 1 / frameRate;
+const rateTextField = document.getElementById("rate-text-field");
+rateTextField.addEventListener("valuechange", (event) => player.dataset["rate"] = event.detail.value);
+
 let lastTime;
 function updatePlayer(time) {
     if(lastTime === undefined) {
@@ -409,6 +568,8 @@ function updatePlayer(time) {
     }
     const delta = (time - lastTime) / 1000;
     if(ElementUtil.isPlayerPlaying(player)) {
+        const frameRate = parseInt(player.dataset["rate"]);
+        const period = 1 / frameRate;
         // Calculate how many frames have passed
         const frames = Math.floor(delta * frameRate);
         const unusedTime = delta - frames * period;
