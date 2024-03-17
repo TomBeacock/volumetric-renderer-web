@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "dicom-parser": "^1.8.21",
     "fflate": "^0.8.2",
     "three": "^0.161.0"
   },

@@ -7,6 +7,7 @@ import * as ElementUtil from "./util_element.js";
 
 import vertexShader from "../shaders/volume.vert.js";
 import fragmentShader from "../shaders/volume.frag.js";
+import { DICOMLoader } from "./dicom_loader.js";
 
 const scene = new THREE.Scene();
 const viewport = document.getElementById("context-container");
@@ -121,25 +122,45 @@ function updateFrame() {
     volume.material.needsUpdate = true;
 };
 
+function onDatasetLoaded(result) {
+    dataset = result;
+    currentFrame = 0;
+    ElementUtil.setPlayerFrame(player, currentFrame);
+    ElementUtil.setPlayerFrameCount(player, dataset.frameCount);
+    player.style.display = dataset.frameCount > 1 ? "" : "none";
+    updateFrame();
+}
+
 const openFileInput = document.getElementById("open-file-input");
 openFileInput.addEventListener("change", (event) => {
     const files = openFileInput.files;
     if(files.length > 0) {
-        const fileReader = new FileReader();
-        fileReader.addEventListener("load", (event) => {
-            try {
-                const loader = new NRRDLoader();
-                dataset = loader.parse(event.target.result);
-                currentFrame = 0;
-                ElementUtil.setPlayerFrame(player, currentFrame);
-                ElementUtil.setPlayerFrameCount(player, dataset.frameCount);
-                player.style.display = dataset.frameCount > 1 ? "" : "none";
-                updateFrame();
-            } catch (error) {
-                console.log(error);
+        const filename = files[0].name;
+        const ext = filename.substring(filename.lastIndexOf('.') + 1, filename.length) || filename;
+        switch(ext) {
+            case "nrrd": {
+                const fileReader = new FileReader();
+                fileReader.addEventListener("load", (event) => {
+                    try {
+                        const loader = new NRRDLoader();
+                        onDatasetLoaded(loader.parse(event.target.result));
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
+                fileReader.readAsArrayBuffer(files[0]);
+                break;
             }
-        });
-        fileReader.readAsArrayBuffer(files[0]);
+            case "dcm": {
+                try {
+                    const loader = new DICOMLoader();
+                    loader.load(files, onDatasetLoaded);
+                } catch(error) {
+                    console.log(error);
+                }
+                break;
+            }
+        }
     }
 });
 
