@@ -135,10 +135,11 @@ class NRRDLoader extends THREE.Loader {
 				throw new Error("Number of datapoints does not match dimensions");
 			}
 
-			// Three JS doesn't support 64-bit floats, convert to 32-bit.
-			if(header.dataStreamType == Float64Array) {
+			// WebGL doesn't support any other grayscale format, convert to 32-bit float format.
+			if(header.dataStreamType !== Float32Array && header.dataStreamType !== Int8Array && header.dataStreamType !== Uint8Array) {
 				parsedData = new Float32Array(parsedData);
 			}
+
 			return parsedData;
 		}
 
@@ -216,9 +217,19 @@ class NRRDLoader extends THREE.Loader {
 
 		const rawData = rawBytes.slice(dataStart);
 		const parsedData = parseData(header, rawData);
-		const range = computeDataRange(parsedData);
 
-		return new VolumeDataset(header.sizes, header.type, parsedData, range.min, range.max);
+		const range = computeDataRange(parsedData);
+		const dimensions = new THREE.Vector3(header.sizes[0], header.sizes[1], header.sizes[2]);
+		const frameCount = header.sizes.length == 4 ? header.sizes[3] : 1;
+
+		const max = Math.max(dimensions.x, dimensions.y, dimensions.z);
+		const scale = dimensions.clone().divideScalar(max);
+		if(header.spaceDirections != undefined) {
+			const spaceDirections = new THREE.Vector3(header.spaceDirections[0][0], header.spaceDirections[1][1], header.spaceDirections[2][2]);
+			scale.multiply(spaceDirections);
+		}
+
+		return new VolumeDataset(dimensions, frameCount, header.type, parsedData, range.min, range.max, scale);
 	}
 }
 
@@ -245,7 +256,7 @@ const parseFieldFunctions = {
 			case "int16":
 			case "int16_t":
 				this.dataStreamType = Int16Array;
-				this.type = THREE.ShortType;
+				this.type = THREE.FloatType;
 				break;
 			case "ushort":
 			case "unsigned short":
@@ -253,21 +264,21 @@ const parseFieldFunctions = {
 			case "uint16":
 			case "uint16_t":
 				this.dataStreamType = Uint16Array;
-				this.type = THREE.UnsignedShortType;
+				this.type = THREE.FloatType;
 				break;
 			case "int":
 			case "signed int":
 			case "int32":
 			case "int32_t":
 				this.dataStreamType = Int32Array;
-				this.type = THREE.IntType;
+				this.type = THREE.FloatType;
 				break;
 			case "uint":
 			case "unsigned int":
 			case "uint32":
 			case "uint32_t":
 				this.dataStreamType = Uint32Array;
-				this.type = THREE.UnsignedIntType;
+				this.type = THREE.FloatType;
 				break;
 			case "float":
 				this.dataStreamType = Float32Array;

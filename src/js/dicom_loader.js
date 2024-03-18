@@ -4,7 +4,7 @@ import {VolumeDataset} from "./volume_dataset.js";
 
 class DICOMLoader {
 	load(files, callback) {
-        const dimensions = [-1, -1, 0];
+        const dimensions = new THREE.Vector3(-1, -1, 0);
         const type = THREE.FloatType;
         let min = Infinity, max = -Infinity;
         const slices = Array(files.length).fill();
@@ -25,15 +25,15 @@ class DICOMLoader {
             const rows = dicom.uint16("x00280010");
             const cols = dicom.uint16("x00280011");
 
-            if(dimensions[0] == -1) {
-                dimensions[0] = cols;
-            } else if(cols != dimensions[0]) {
+            if(dimensions.x == -1) {
+                dimensions.x = cols;
+            } else if(cols != dimensions.x) {
                 throw new Error("Slice dimensions are not equal");
             }
 
-            if(dimensions[1] == -1) {
-                dimensions[1] = rows;
-            } else if(rows != dimensions[1]) {
+            if(dimensions.y == -1) {
+                dimensions.y = rows;
+            } else if(rows != dimensions.y) {
                 throw new Error("Slice dimensions are not equal");
             }
 
@@ -47,15 +47,15 @@ class DICOMLoader {
                 slice[i] = dicom.uint16("x7fe00010", i);
             }
             slices[index] = slice;
-            dimensions[2]++;
+            dimensions.z++;
             recomputeDataRange(slice);
 
-            if(typeof(callback) === "function" && dimensions[2] == files.length) {
+            if(typeof(callback) === "function" && dimensions.z == files.length) {
                 const data = new Float32Array(rows * cols * files.length);
                 for(let i = 0; i < slices.length; i++) {
                     data.set(slices[i], i * n);
                 }
-                callback(new VolumeDataset(dimensions, type, data, min, max));
+                callback(new VolumeDataset(dimensions, 1, type, data, min, max));
             }
         }
         for(let i = 0; i < files.length; i++) {

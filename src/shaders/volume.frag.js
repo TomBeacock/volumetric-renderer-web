@@ -14,10 +14,12 @@ uniform vec3 u_slice_min;
 uniform vec3 u_slice_max;
 uniform sampler3D u_volume;
 uniform sampler2D u_transfer_func;
+uniform mat4 u_inv_transform_matrix;
 
 void main() {
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-    vec3 ray_dir = normalize(frag_position - u_camera_position);
+    vec3 world_ray_dir = normalize(frag_position - u_camera_position);
+    vec3 ray_dir = normalize((u_inv_transform_matrix * vec4(world_ray_dir, 1.0)).xyz);
     vec3 ray_pos = frag_tex_coords - ray_dir * 1.8;
 
     float ray_dist = 1.8;

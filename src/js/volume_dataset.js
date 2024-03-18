@@ -3,26 +3,26 @@ import * as THREE from "three";
 class VolumeDataset {
 	/**
 	 * 
-	 * @param {Array<number>} dimensions The dimension of the volume
+	 * @param {THREE.Vector3} dimensions The dimension of the volume
+	 * @param {number} frames The dimension of the volume
 	 * @param {number} type The type of the buffer
 	 * @param {TypedArray} data The data buffer
 	 * @param {number} min The minimum value in the buffer
 	 * @param {number} max The maximum value in the buffer
 	 */
-	constructor(dimensions, type, data, min, max) {
+	constructor(dimensions, frameCount, type, data, min, max, scale) {
+		this.dimensions = dimensions;
+		this.frameCount = frameCount;
+		this.frameSize = dimensions.x * dimensions.y * dimensions.z;
 		this.type = type;
 		this.data = data;
 		this.min = min;
 		this.max = max;
-
-		if(dimensions.length == 3) {
-			this.dimensions = dimensions;
-			this.frameCount = 1;
-			this.frameSize = dimensions[0] * dimensions[1] * dimensions[2];
-		} else if(dimensions.length == 4) {
-			this.dimensions = dimensions.slice(0, 3);
-			this.frameCount = dimensions[3];
-			this.frameSize = dimensions[0] * dimensions[1] * dimensions[2];
+		this.scale = scale;
+		
+		if(scale == undefined) {
+			const max = Math.max(dimensions.x, dimensions.y, dimensions.z);
+			this.scale = dimensions.clone().divideScalar(max);
 		}
 	}
 

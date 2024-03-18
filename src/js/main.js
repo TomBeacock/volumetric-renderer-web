@@ -78,6 +78,8 @@ function create_volume_mesh() {
         uniforms: {
             u_projection_matrix: {value: camera.projectionMatrix},
             u_view_matrix: {value: camera.matrixWorldInverse},
+            u_transform_matrix: {value: new THREE.Matrix4()},
+            u_inv_transform_matrix: {value: new THREE.Matrix4()},
             u_camera_position: {value: camera.position.clone()},
             u_density_min: {value: 0.0},
             u_density_max: {value: 1.0},
@@ -105,14 +107,22 @@ function normalizeValue(type, value) {
 
 let dataset = null;
 let currentFrame = 0;
-
 const player = document.getElementById("player");
+
+function updateScale() {
+    const scale_matrix = new THREE.Matrix4().makeScale(dataset.scale.x, dataset.scale.y, dataset.scale.z);
+    const inv_scale_matrix = scale_matrix.clone().invert();
+    volume.material.uniforms.u_transform_matrix.value = scale_matrix;
+    volume.material.uniforms.u_inv_transform_matrix.value = inv_scale_matrix;
+    volume.material.needsUpdate = true;
+}
+
 function updateFrame() {
     if(dataset == null) {
         return;
     }
     const data = dataset.getFrameData(currentFrame);
-    const volumeTexture = new THREE.Data3DTexture(data, dataset.dimensions[0], dataset.dimensions[1], dataset.dimensions[2]);
+    const volumeTexture = new THREE.Data3DTexture(data, dataset.dimensions.x, dataset.dimensions.y, dataset.dimensions.z);
     volumeTexture.format = THREE.RedFormat;
     volumeTexture.type = dataset.type;
     volume.material.uniforms.u_volume.value = volumeTexture;
@@ -128,6 +138,7 @@ function onDatasetLoaded(result) {
     ElementUtil.setPlayerFrame(player, currentFrame);
     ElementUtil.setPlayerFrameCount(player, dataset.frameCount);
     player.style.display = dataset.frameCount > 1 ? "" : "none";
+    updateScale();
     updateFrame();
 }
 
