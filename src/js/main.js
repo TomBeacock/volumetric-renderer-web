@@ -132,8 +132,8 @@ function updateFrame() {
     volume.material.needsUpdate = true;
 };
 
-function onDatasetLoaded(result) {
-    dataset = result;
+function changeDataset(newDataset) {
+    dataset = newDataset;
     currentFrame = 0;
     ElementUtil.setPlayerFrame(player, currentFrame);
     ElementUtil.setPlayerFrameCount(player, dataset.frameCount);
@@ -154,7 +154,7 @@ openFileInput.addEventListener("change", (event) => {
                 fileReader.addEventListener("load", (event) => {
                     try {
                         const loader = new NRRDLoader();
-                        onDatasetLoaded(loader.parse(event.target.result));
+                        changeDataset(loader.parse(event.target.result));
                     } catch (error) {
                         console.log(error);
                     }
@@ -165,7 +165,7 @@ openFileInput.addEventListener("change", (event) => {
             case "dcm": {
                 try {
                     const loader = new DICOMLoader();
-                    loader.load(files, onDatasetLoaded);
+                    loader.load(files, changeDataset);
                 } catch(error) {
                     console.log(error);
                 }
@@ -224,6 +224,23 @@ ySliceField.addEventListener("valuechange", (event) => setSlice(1, event.detail.
 const zSliceField = document.getElementById("z-slice-field");
 zSliceField.addEventListener("valuechange", (event) => setSlice(2, event.detail.min, event.detail.max));
 
+const rotateField = document.getElementById("rotate-field");
+rotateField.addEventListener("valuechange", (event) => {
+    const scale_matrix = new THREE.Matrix4().makeScale(dataset.scale.x, dataset.scale.y, dataset.scale.z);
+    const rotation = event.detail.rotation;
+    const euler = new THREE.Euler(
+        THREE.MathUtils.degToRad(rotation[0]),
+        THREE.MathUtils.degToRad(rotation[1]),
+        THREE.MathUtils.degToRad(rotation[2])
+    )
+    const rotation_matrix = new THREE.Matrix4().makeRotationFromEuler(euler);
+    const transform_matrix = new THREE.Matrix4().multiplyMatrices(rotation_matrix, scale_matrix);
+    const inv_transform_matrix = transform_matrix.clone().invert();
+    volume.material.uniforms.u_transform_matrix.value = transform_matrix;
+    volume.material.uniforms.u_inv_transform_matrix.value = inv_transform_matrix;
+    volume.material.needsUpdate = true;
+});
+
 function update()  {
     const playerFrame = ElementUtil.getPlayerFrame(player);
     if(currentFrame != playerFrame) {
@@ -236,4 +253,5 @@ function update()  {
     requestAnimationFrame(update);
 }
 
+changeDataset(new VolumeDataset(new THREE.Vector3(1, 1, 1), 1, THREE.UnsignedByteType, new Uint8Array([1]), 0.0, 1.0, new THREE.Vector3(1, 1, 1)));
 update();

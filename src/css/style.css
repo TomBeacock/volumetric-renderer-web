@@ -9,6 +9,7 @@
     --color-control-background: #f7f7f9;
     --color-control-foreground: #ffffff;
     --color-button-hover: #dcdcdc;
+    --color-button-pressed: #b3b3b3;
     --color-slider-track: #dddde1;
     --color-slider-thumb: #ffffff;
     --shadow-panel: 0px 1px 2px 1px rgba(0.0, 0.0, 0.0, 0.2);
@@ -28,6 +29,7 @@
     --color-control-background: #2f2f2f;
     --color-control-foreground: #d7d6d6;
     --color-button-hover: #6b6b6b;
+    --color-button-pressed: #575757;
     --color-slider-track: var(--color-background-0);
     --color-slider-thumb: #ffffff;
     --shadow-panel: none;
@@ -84,20 +86,37 @@ h2 {
     font-weight: normal;
 }
 
+/* ----- Layout ----- */
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
 /* ----- Button ----- */
-.button {
+button {
     display: inline-block;
+    background-color: transparent;
     padding: 0.5rem;
     border-radius: 0.375rem;
     cursor: pointer;
     color: var(--color-text-regular);
+    border: none;
 }
 
-.button:hover {
+button:hover {
     background-color: var(--color-button-hover);
 }
 
-.button > span {
+button:active {
+    background-color: var(--color-button-pressed);
+}
+
+button > span {
     vertical-align: middle;
     user-select: none;
 }
@@ -363,7 +382,6 @@ h2 {
 }
 
 .labelled-field.column {
-    flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
 }
@@ -460,6 +478,29 @@ h2 {
 .field-text input:focus-visible {
     border: none;
     outline: none;
+}
+
+.field-rotate {
+    display: flex;
+    flex-direction: row;
+    background: none;
+    border: none;
+    padding: 0;
+    justify-content: space-between;
+}
+
+.field-rotate .label {
+    margin: 0;
+    min-width: 2ch;
+    flex-grow: 1;
+}
+
+.field-rotate-axis {
+    padding: 0;
+}
+
+.field-rotate-axis .button {
+    padding: 0.25rem;
 }
 
 /* ----- Header ----- */

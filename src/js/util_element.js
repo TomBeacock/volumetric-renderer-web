@@ -97,15 +97,15 @@ export function getPlayerFrameCount(player) {
 }
 
 export function isPlayerPlaying(player) {
-    return player.dataset["playing"] === "true";
+    return player.dataset.playing === "true";
 }
 
 export function isPlayerReversed(player) {
-    return player.dataset["reverse"] === "true";
+    return player.dataset.reverse === "true";
 }
 
 export function isPlayerRepeating(player) {
-    return player.dataset["repeat"] === "true";
+    return player.dataset.repeat === "true";
 }
 
 export function setPlayerPlaying(player, playing) {

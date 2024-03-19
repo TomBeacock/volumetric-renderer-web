@@ -48,6 +48,7 @@ for(let i = 0; i < rangeSliders.length; i++) {
 const toggleButtons = document.getElementsByClassName("toggle-button");
 for(let i = 0; i < toggleButtons.length; i++) {
     const toggleButton = toggleButtons[i];
+    toggleButton.setAttribute("tabindex", "0");
     toggleButton.addEventListener("click", (event) => {
         const on = !toggleButton.classList.contains("on");
         ElementUtil.setToggleButtonOn(toggleButton, on);
@@ -199,6 +200,43 @@ for(let i = 0; i < textFields.length; i++) {
             }
             input.value = value;
         });
+    }
+}
+
+// Setup rotate-axis field behavior
+const rotateAxisFields = document.getElementsByClassName("field-rotate-axis");
+for(let i = 0; i < rotateAxisFields.length; i++) {
+    const rotateAxisField = rotateAxisFields[i];
+    const buttons = rotateAxisField.getElementsByTagName("button");
+    function onRotate(clockwise) {
+        let dataRotation = rotateAxisField.dataset.rotation;
+        let rotation = dataRotation === undefined ? 0 : parseInt(dataRotation);
+        rotation = Util.mod(rotation + (clockwise ? 90 : -90), 360);
+        rotateAxisField.dataset.rotation = rotation;
+        rotateAxisField.dispatchEvent(new CustomEvent("valuechange", {detail: {rotation: rotation}}));
+    }
+    buttons[0].addEventListener("click", (event) => onRotate(false));
+    buttons[1].addEventListener("click", (event) => onRotate(true));
+}
+
+// Setup rotate field behavior
+const rotateFields = document.getElementsByClassName("field-rotate");
+for(let i = 0; i < rotateFields.length; i++) {
+    const rotateField = rotateFields[i];
+    const rotateAxisFields = rotateField.getElementsByClassName("field-rotate-axis");
+    function onRotate() {
+        const rotation = [];
+        for(let j = 0; j < rotateAxisFields.length; j++) {
+            const rotateAxisField = rotateAxisFields[j];
+            const axisDataRotation = rotateAxisField.dataset.rotation;
+            const axisRotation = axisDataRotation === undefined ? 0 : parseInt(axisDataRotation);
+            rotation.push(axisRotation);
+        }
+        rotateField.dispatchEvent(new CustomEvent("valuechange", {detail: {rotation: rotation}}));
+    }
+    for(let j = 0; j < rotateAxisFields.length; j++) {
+        const rotateAxisField = rotateAxisFields[j];
+        rotateAxisField.addEventListener("valuechange", onRotate)
     }
 }
 
