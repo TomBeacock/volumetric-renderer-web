@@ -56,18 +56,36 @@
             <div class="separator"></div>
             <div class="fill"></div>
             <div id="theme-toggle-button-group" class="toggle-button-group header-section">
-                <div class="toggle-button" data-name="light-mode">
+                <button class="toggle-button" data-name="light-mode">
                     <span class="material-symbols-rounded">light_mode</span>
-                </div>
-                <div class="toggle-button on" data-name="dark-mode">
+                </button>
+                <button class="toggle-button on" data-name="dark-mode">
                     <span class="material-symbols-rounded">dark_mode</span>
-                </div>
+                </button>
             </div>
         </header>
         <div class="main-area">
             <div class="panel viewport">
                 <div id="context-container" class="context-container">
                     <canvas id="context" class="context"></canvas>
+                    <div class="viewport-controls">
+                        <div class="bar">
+                            <div class="labelled-field">
+                                <p class="label">Axes</p>
+                                <div class="button-group">
+                                    <button id="x-axis-toggle-button" class="toggle-button filled on">
+                                        <span class="text">X</span>
+                                    </button>
+                                    <button id="y-axis-toggle-button" class="toggle-button filled on">
+                                        <span class="text">Y</span>
+                                    </button>
+                                    <button id="z-axis-toggle-button" class="toggle-button filled on">
+                                        <span class="text">Z</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="player" class="player" style="display: none;">
                     <div class="field field-player-progress">
@@ -76,21 +94,21 @@
                         <span class="label">1</span>
                     </div>
                     <div class="controls">
-                        <div id="skip-start-button" class="button">
+                        <button id="skip-start-button" class="button">
                             <span class="material-symbols-rounded">skip_previous</span>
-                        </div>
-                        <div id="play-pause-button" class="toggle-button play-pause">
+                        </button>
+                        <button id="play-pause-button" class="toggle-button play-pause">
                             <span class="material-symbols-rounded"></span>
-                        </div>
-                        <div id="skip-end-button" class="button">
+                        </button>
+                        <button id="skip-end-button" class="button">
                             <span class="material-symbols-rounded">skip_next</span>
-                        </div>
-                        <div id="reverse-button" class="toggle-button">
+                        </button>
+                        <button id="reverse-button" class="toggle-button">
                             <span class="material-symbols-rounded">device_reset</span>
-                        </div>
-                        <div id="repeat-button" class="toggle-button">
+                        </button>
+                        <button id="repeat-button" class="toggle-button">
                             <span class="material-symbols-rounded">repeat</span>
-                        </div>
+                        </button>
                         <div class="fill"></div>
                         <div class="labelled-field">
                             <span class="label">Rate</span>
@@ -101,13 +119,11 @@
                         </div>
                     </div>
                 </div>
-                <!--<div class="viewport-controls">
-                </div>-->
             </div>
             <div class="panel properties">
                 <div class="section">
                     <h2>Display</h2>
-                    <div class="labelled-field">
+                    <div class="labelled-field even">
                         <p class="label">Brightness</p>
                         <div id="brightness-field" class="field field-slider">
                             <input class="slider" type="range" min="0" max="100" value="50"/>
@@ -115,7 +131,7 @@
                             <span class="unit">%</span>
                         </div>
                     </div>
-                    <div id="contrast-field" class="labelled-field">
+                    <div id="contrast-field" class="labelled-field even">
                         <p class="label">Contrast</p>
                         <div class="field field-slider">
                             <input class="slider" type="range" min="0" max="100" value="50"/>
@@ -129,7 +145,7 @@
                             <div class="gradient" data-format="rgb">
                                 <div class="track"></div>
                             </div>
-                            <div class="labelled-field">
+                            <div class="labelled-field even">
                                 <p class="label">Color</p>
                                 <div class="field field-color">
                                     <div class="color-block"></div>
@@ -145,7 +161,7 @@
                             <div class="gradient" data-format="a">
                                 <div class="track"></div>
                             </div>
-                            <div class="labelled-field">
+                            <div class="labelled-field even">
                                 <p class="label">Opacity</p>
                                 <div class="field field-slider">
                                     <input class="slider" type="range" min="0" max="100" value="50"/>
@@ -159,7 +175,7 @@
                 <div class="separator"></div>
                 <div class="section">
                     <h2>Slicing</h2>
-                    <div class="labelled-field">
+                    <div class="labelled-field even">
                         <p class="label">X-Axis</p>
                         <div id="x-slice-field" class="field field-range-slider">
                             <span class="label">100</span>
@@ -172,7 +188,7 @@
                             <span class="unit">%</span>
                         </div>
                     </div>
-                    <div class="labelled-field">
+                    <div class="labelled-field even">
                         <p class="label">Y-Axis</p>
                         <div id="y-slice-field" class="field field-range-slider">
                             <span class="label">100</span>
@@ -185,7 +201,7 @@
                             <span class="unit">%</span>
                         </div>
                     </div>
-                    <div class="labelled-field">
+                    <div class="labelled-field even">
                         <p class="label">Z-Axis</p>
                         <div id="z-slice-field" class="field field-range-slider">
                             <span class="label">100</span>
@@ -206,7 +222,7 @@
                         <div id="rotate-field" class="field field-rotate">
                             <div class="labelled-field">
                                 <p class="label">X</p>
-                                <div id="x-rotate-field" class="field field-rotate-axis">
+                                <div id="x-rotate-field" class="field field-rotate-axis button-group">
                                     <button class="button">
                                         <span class="material-symbols-rounded">rotate_left</span>
                                     </button>
@@ -217,7 +233,7 @@
                             </div>
                             <div class="labelled-field">
                                 <p class="label">Y</p>
-                                <div id="y-rotate-field" class="field field-rotate-axis">
+                                <div id="y-rotate-field" class="field field-rotate-axis button-group">
                                     <button class="button">
                                         <span class="material-symbols-rounded">rotate_left</span>
                                     </button>
@@ -228,7 +244,7 @@
                             </div>
                             <div class="labelled-field">
                                 <p class="label">Z</p>
-                                <div id="z-rotate-field" class="field field-rotate-axis">
+                                <div id="z-rotate-field" class="field field-rotate-axis button-group">
                                     <button class="button">
                                         <span class="material-symbols-rounded">rotate_left</span>
                                     </button>

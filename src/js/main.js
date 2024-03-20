@@ -16,12 +16,20 @@ const context = document.getElementById("context");
 const camera = new THREE.PerspectiveCamera(75, viewport.offsetWidth / viewport.offsetHeight, 0.1, 1000);
 const controls = new OrbitControls(camera, context);
 controls.zoomSpeed = 1.5;
+controls.maxDistance = 10.0;
 camera.position.set(0, 0, 2);
 controls.update();
 
-const renderer = new THREE.WebGLRenderer({canvas: context});
+const renderer = new THREE.WebGLRenderer({canvas: context, antialias: true});
 renderer.setSize(viewport.offsetWidth, viewport.offsetHeight);
 renderer.setClearColor(new THREE.Color(0x1b1b1b));
+
+const xAxisLine = createAxisLine(0xff0022, new THREE.Vector3(1, 0, 0));
+scene.add(xAxisLine);
+const yAxisLine = createAxisLine(0x7bff00, new THREE.Vector3(0, 1, 0));
+scene.add(yAxisLine);
+const zAxisLine = createAxisLine(0x0099ff, new THREE.Vector3(0, 0, 1));
+scene.add(zAxisLine);
 
 const volume = create_volume_mesh();
 scene.add(volume);
@@ -34,6 +42,14 @@ const resize_observer = new ResizeObserver(() => {
 });
 
 resize_observer.observe(viewport);
+
+function createAxisLine(color, axis) {
+    const material = new THREE.LineBasicMaterial({color: color, transparent: true, opacity: 0.5, depthTest: false});
+    const points = [axis.clone().multiplyScalar(-1000), axis.clone().multiplyScalar(1000)];    
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(geometry, material);
+    return line;
+}
 
 function create_volume_mesh() {
     const positions = new Float32Array([
@@ -239,6 +255,19 @@ rotateField.addEventListener("valuechange", (event) => {
     volume.material.uniforms.u_transform_matrix.value = transform_matrix;
     volume.material.uniforms.u_inv_transform_matrix.value = inv_transform_matrix;
     volume.material.needsUpdate = true;
+});
+
+const xAxisToggleButton = document.getElementById("x-axis-toggle-button");
+xAxisToggleButton.addEventListener("toggle", (event) => {
+    xAxisLine.visible = event.detail.on;
+});
+const yAxisToggleButton = document.getElementById("y-axis-toggle-button");
+yAxisToggleButton.addEventListener("toggle", (event) => {
+    yAxisLine.visible = event.detail.on;
+});
+const zAxisToggleButton = document.getElementById("z-axis-toggle-button");
+zAxisToggleButton.addEventListener("toggle", (event) => {
+    zAxisLine.visible = event.detail.on;
 });
 
 function update()  {

@@ -2,6 +2,7 @@
     --color-background-0: #ffffff;
     --color-background-1: #2b2b2b;
     --color-text-regular: #1C1C1E;
+    --color-text-on-dark: #ffffff;
     --color-text-faded: #bababa;
     --color-accent-0: #0051ff;
     --color-border: #eaeaef;
@@ -22,6 +23,7 @@
     --color-background-0: #242424;
     --color-background-1: #2b2b2b;
     --color-text-regular: #ffffff;
+    --color-text-on-dark: var(--color-text-regular);
     --color-text-faded: #9c9c9c;
     --color-accent-0: #3877ff;
     --color-border: #414141;
@@ -143,6 +145,22 @@ button > span {
     user-select: none;
 }
 
+button > .text {
+    display: block;
+    margin-inline: 0.5rem;
+    margin-block: 0.25rem;
+}
+
+/* ----- Toggle Button Filled ----- */
+.toggle-button.filled.on {
+    color: var(--color-text-on-dark);
+    background-color: var(--color-accent-0);
+}
+
+.toggle-button.filled.on:hover {
+    background-color: var(--color-accent-0);
+}
+
 /* ----- Player Pause Toggle Button ----- */
 .toggle-button.play-pause {
     color: var(--color-text-regular);
@@ -154,6 +172,31 @@ button > span {
 
 .toggle-button.play-pause.on span::before {
     content: "pause";
+}
+
+/* ----- Button Group ----- */
+.button-group {
+    display: flex;
+    flex-grow: 0;
+    flex-shrink: 0;
+    align-items: center;
+    column-gap: 0.125rem;
+    background-color: var(--color-control-background);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+}
+
+.button-group > * {
+    border-radius: 0;
+    padding: 0.25rem;
+}
+
+.button-group > *:first-child {
+    border-radius: 0.25rem 0 0 0.25rem;
+}
+
+.button-group > *:last-child {
+    border-radius: 0 0.25rem 0.25rem 0;
 }
 
 /* ----- Toggle Button Group ----- */
@@ -374,6 +417,12 @@ button > span {
     box-shadow: var(--shadow-slider-thumb);
 }
 
+/* ----- Label ----- */
+.label {
+    margin: 0;
+    margin-right: 0.5rem;
+}
+
 /* ----- Labelled Field ----- */
 .labelled-field {
     display: flex;
@@ -391,9 +440,8 @@ button > span {
     gap: 0.125rem;
 }
 
-.labelled-field > .label {
-    margin: 0;
-    min-width: 10ch;
+.labelled-field.even > .label {
+    min-width: 9ch;
 }
 
 .labelled-field.column > .label {
@@ -489,18 +537,8 @@ button > span {
     justify-content: space-between;
 }
 
-.field-rotate .label {
-    margin: 0;
-    min-width: 2ch;
-    flex-grow: 1;
-}
-
 .field-rotate-axis {
     padding: 0;
-}
-
-.field-rotate-axis .button {
-    padding: 0.25rem;
 }
 
 /* ----- Header ----- */
@@ -568,6 +606,16 @@ header .separator {
     right: 0;
     top: 0;
     bottom: 0;
+    pointer-events: none;
+}
+
+.viewport-controls .bar {
+    pointer-events: auto;
+    padding: 0.5rem;
+}
+
+.viewport-controls .bar .labelled-field > .label {
+    color: var(--color-text-on-dark);
 }
 
 /* ----- Player ----- */
@@ -595,7 +643,6 @@ header .separator {
 }
 
 .player .labelled-field .label {
-    min-width: auto;
     margin-inline: 0.5rem;
 }
 

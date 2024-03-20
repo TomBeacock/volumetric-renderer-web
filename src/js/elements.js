@@ -48,7 +48,6 @@ for(let i = 0; i < rangeSliders.length; i++) {
 const toggleButtons = document.getElementsByClassName("toggle-button");
 for(let i = 0; i < toggleButtons.length; i++) {
     const toggleButton = toggleButtons[i];
-    toggleButton.setAttribute("tabindex", "0");
     toggleButton.addEventListener("click", (event) => {
         const on = !toggleButton.classList.contains("on");
         ElementUtil.setToggleButtonOn(toggleButton, on);
