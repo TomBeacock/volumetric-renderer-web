@@ -49,7 +49,7 @@
         </div>
         <header>
             <div class="header-section">
-                <button id="open-file-button" class="button">
+                <button id="open-file-button">
                     <span class="material-symbols-rounded">file_open</span>
                 </button>
             </div>
@@ -94,13 +94,13 @@
                         <span class="label">1</span>
                     </div>
                     <div class="controls">
-                        <button id="skip-start-button" class="button">
+                        <button id="skip-start-button">
                             <span class="material-symbols-rounded">skip_previous</span>
                         </button>
                         <button id="play-pause-button" class="toggle-button play-pause">
                             <span class="material-symbols-rounded"></span>
                         </button>
-                        <button id="skip-end-button" class="button">
+                        <button id="skip-end-button">
                             <span class="material-symbols-rounded">skip_next</span>
                         </button>
                         <button id="reverse-button" class="toggle-button">
@@ -152,6 +152,9 @@
                                     <span class="unit">#</span>
                                     <span class="label">FFFFFF</span>
                                 </div>
+                                <button disabled>
+                                    <span class="material-symbols-rounded">delete</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -168,6 +171,9 @@
                                     <span class="label">100</span>
                                     <span class="unit">%</span>
                                 </div>
+                                <button>
+                                    <span class="material-symbols-rounded">delete</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -217,16 +223,17 @@
                 </div>
                 <div class="separator"></div>
                 <div class="section">
+                    <h2>Transform</h2>
                     <div class="labelled-field column">
                         <p class="label">Rotate</p>
                         <div id="rotate-field" class="field field-rotate">
                             <div class="labelled-field">
                                 <p class="label">X</p>
                                 <div id="x-rotate-field" class="field field-rotate-axis button-group">
-                                    <button class="button">
+                                    <button>
                                         <span class="material-symbols-rounded">rotate_left</span>
                                     </button>
-                                    <button class="button">
+                                    <button>
                                         <span class="material-symbols-rounded">rotate_right</span>
                                     </button>
                                 </div>
@@ -234,10 +241,10 @@
                             <div class="labelled-field">
                                 <p class="label">Y</p>
                                 <div id="y-rotate-field" class="field field-rotate-axis button-group">
-                                    <button class="button">
+                                    <button>
                                         <span class="material-symbols-rounded">rotate_left</span>
                                     </button>
-                                    <button class="button">
+                                    <button>
                                         <span class="material-symbols-rounded">rotate_right</span>
                                     </button>
                                 </div>
@@ -245,10 +252,10 @@
                             <div class="labelled-field">
                                 <p class="label">Z</p>
                                 <div id="z-rotate-field" class="field field-rotate-axis button-group">
-                                    <button class="button">
+                                    <button>
                                         <span class="material-symbols-rounded">rotate_left</span>
                                     </button>
-                                    <button class="button">
+                                    <button>
                                         <span class="material-symbols-rounded">rotate_right</span>
                                     </button>
                                 </div>

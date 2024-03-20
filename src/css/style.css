@@ -103,7 +103,7 @@ h2 {
 button {
     display: inline-block;
     background-color: transparent;
-    padding: 0.5rem;
+    padding: 0.25rem;
     border-radius: 0.375rem;
     cursor: pointer;
     color: var(--color-text-regular);
@@ -118,6 +118,12 @@ button:active {
     background-color: var(--color-button-pressed);
 }
 
+button:disabled {
+    cursor: auto;
+    color: var(--color-text-faded);
+    background-color: transparent;
+}
+
 button > span {
     vertical-align: middle;
     user-select: none;
@@ -126,7 +132,7 @@ button > span {
 /* ----- Toggle Button ----- */
 .toggle-button {
     display: inline-block;
-    padding: 0.5rem;
+    padding: 0.25rem;
     border-radius: 0.375rem;
     cursor: pointer;
     color: var(--color-text-faded);
@@ -188,7 +194,6 @@ button > .text {
 
 .button-group > * {
     border-radius: 0;
-    padding: 0.25rem;
 }
 
 .button-group > *:first-child {
@@ -490,6 +495,10 @@ button > .text {
     gap: 0.5rem;
 }
 
+.field.field-gradient button {
+    margin-left: 0.25rem;
+}
+
 .field.field-color .color-block {
     background-color: white;
     height: calc(1em + 0.5rem);
@@ -553,6 +562,11 @@ header {
 header .separator {
     width: 1px;
     height: 100%;
+}
+
+header button,
+header .toggle-button {
+    padding: 0.375rem;
 }
 
 .fill {

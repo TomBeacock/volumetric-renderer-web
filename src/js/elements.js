@@ -244,10 +244,10 @@ function showPopup(popup) {
     const closePopupListener = (event) => {
         if(!popup.contains(event.target)){
             popup.style.display = "none";
-            document.body.removeEventListener("mousedown", closePopupListener);
+            document.body.removeEventListener("pointerdown", closePopupListener);
         }
     };
-    document.body.addEventListener("mousedown", closePopupListener, {capture: true});
+    document.body.addEventListener("pointerdown", closePopupListener, {capture: true});
     popup.style.display = "";
 }
 
@@ -311,8 +311,8 @@ function showColorPicker(element, changeListener, color) {
 
     // Setup events
     colorPicker.addEventListener("valuechange", changeListener);
-    colorPicker.addEventListener("mousedown", (event) => event.stopPropagation());
-    document.addEventListener("mousedown", (event) => {
+    colorPicker.addEventListener("pointerdown", (event) => event.stopPropagation());
+    document.addEventListener("pointerdown", (event) => {
         colorPicker.removeEventListener("valuechange", changeListener);
         colorPicker.style.display = "none";
     });
@@ -338,7 +338,7 @@ function updateColorPickerColorArea() {
     colorPicker.dispatchEvent(new CustomEvent("valuechange", {detail: {color: color}}))
 }
 
-colorArea.addEventListener("mousedown", (event) => {
+colorArea.addEventListener("pointerdown", (event) => {
     // Jump thumb to click
     const relPos = Util.calculateRelativePosition(colorAreaThumb.parentElement, event.clientX, event.clientY);
     colorAreaThumb.style.left = `${relPos.x * 100}%`;
@@ -356,11 +356,11 @@ colorArea.addEventListener("mousedown", (event) => {
 
     // Handle thumb drag end
     let thumbReleasedHandler = function(event) {
-        document.removeEventListener("mousemove", thumbMoveHandler);
-        document.removeEventListener("mouseup", thumbReleasedHandler);
+        document.removeEventListener("pointermove", thumbMoveHandler);
+        document.removeEventListener("pointerup", thumbReleasedHandler);
     }
-    document.addEventListener("mousemove", thumbMoveHandler);
-    document.addEventListener("mouseup", thumbReleasedHandler);
+    document.addEventListener("pointermove", thumbMoveHandler);
+    document.addEventListener("pointerup", thumbReleasedHandler);
 });
 
 colorHueSlider.addEventListener("input", (event) => updateColorPickerColorArea());
@@ -409,7 +409,8 @@ const gradientFields = document.getElementsByClassName("field-gradient");
 for(let i = 0; i < gradientFields.length; i++) {
     const gradientField = gradientFields[i];
     const gradient = gradientField.querySelector(".gradient");
-
+    
+    // Marker value fields
     if(gradient.dataset.format === "rgb") {
         const colorField = gradientField.querySelector(".field-color");
         gradient.addEventListener("activemarkerchange", (event) => {
@@ -431,6 +432,18 @@ for(let i = 0; i < gradientFields.length; i++) {
             setGradientMarkerColor(gradient, {r: a, g: a, b: a});
         });
     }
+
+    // Delete marker button
+    const deleteButton = gradientField.querySelector("button");
+    deleteButton.addEventListener("click", (event) => removeMarker(gradient));
+    gradient.addEventListener("activemarkerchange", (event) => {
+        if(event.detail.marker.hasAttribute("fixed")) {
+            deleteButton.setAttribute("disabled", "");
+        } else {
+            deleteButton.removeAttribute("disabled");
+        }
+    });
+
     gradient.addEventListener("gradientchange", (event) =>
         gradientField.dispatchEvent(new CustomEvent("valuechange", {detail: {data: event.detail.data}}))
     );
@@ -459,6 +472,21 @@ function recalculateGradient(gradient) {
     }
     gradient.style.background = `linear-gradient(to right${linearGradient})`;
     gradient.dispatchEvent(new CustomEvent("gradientchange", {detail: {data: markers}}));
+}
+
+function removeMarker(gradient) {
+    const track = gradient.querySelector(".track");
+    const markers = gradient.querySelectorAll(".marker");
+    for(let i = 0; i < markers.length; i++) {
+        const marker = markers[i];
+        if(marker.classList.contains("active")) {
+            if(marker.hasAttribute("fixed")) {
+                return;
+            }
+            track.removeChild(marker);
+        }
+    }
+    recalculateGradient(gradient);
 }
 
 const gradients = document.getElementsByClassName("gradient");
@@ -490,10 +518,13 @@ for(let i = 0; i < gradients.length; i++) {
             color = ElementUtil.sampleGradient(gradient, percent);
         }
         marker.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+        if(fixed) {
+            marker.setAttribute("fixed", "");
+        }
         activateMarker(marker);
         
         // Setup behavior
-        marker.addEventListener("mousedown", (event) => {
+        marker.addEventListener("pointerdown", (event) => {
             event.stopPropagation();
             activateMarker(marker);
             if(!fixed) {
@@ -504,11 +535,11 @@ for(let i = 0; i < gradients.length; i++) {
                     recalculateGradient(gradient);
                 };
                 let markerReleasedHandler = function(event) {
-                    document.removeEventListener("mousemove", markerMoveHandler);
-                    document.removeEventListener("mouseup", markerReleasedHandler);
+                    document.removeEventListener("pointermove", markerMoveHandler);
+                    document.removeEventListener("pointerup", markerReleasedHandler);
                 }
-                document.addEventListener("mousemove", markerMoveHandler);
-                document.addEventListener("mouseup", markerReleasedHandler);
+                document.addEventListener("pointermove", markerMoveHandler);
+                document.addEventListener("pointerup", markerReleasedHandler);
             }
         });
         
@@ -517,10 +548,10 @@ for(let i = 0; i < gradients.length; i++) {
     }
 
     // Setup track behavior
-    gradient.addEventListener("mousemove", (event) => {
+    gradient.addEventListener("pointermove", (event) => {
     });
 
-    gradient.addEventListener("mousedown", (event) => {
+    gradient.addEventListener("pointerdown", (event) => {
         const relPos = Util.calculateRelativePosition(track, event.clientX, 0);
         addMarker(relPos.x * 100);
     });
