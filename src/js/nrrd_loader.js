@@ -2,34 +2,8 @@ import * as THREE from "three";
 import * as fflate from "fflate";
 import {VolumeDataset} from "./volume_dataset.js";
 
-class NRRDLoader extends THREE.Loader {
-	constructor(manager) {
-		super(manager);
-	}
-
-	load(url, onLoad, onProgress, onError) {
-		const scope = this;
-
-		const loader = new THREE.FileLoader(scope.manager);
-		loader.setPath(scope.path);
-		loader.setResponseType("arraybuffer");
-		loader.setRequestHeader(scope.requestHeader);
-		loader.setWithCredentials(scope.withCredentials);
-		loader.load(url, function (data) {
-			try {
-				onLoad(scope.parse(data));
-			} catch (e) {
-				if (onError) {
-					onError(e);
-				} else {
-					console.error(e);
-				}
-				scope.manager.itemError(url);
-			}
-		}, onProgress, onError);
-	}
-
-	parse(data) {
+class NRRDLoader {
+	load(files, onLoad, onProgress) {
         function parseChars(array, start, end) {
             if (start === undefined) {
                 start = 0;
@@ -201,35 +175,48 @@ class NRRDLoader extends THREE.Loader {
 			return {min: min, max: max};
 		}
 
-		const rawBytes = readBytes(data);
-		let rawHeader = null;
-		let dataStart = 0;
-		for (let i = 1; i < rawBytes.length; i++) {
-            // Check for two line breaks
-			if (rawBytes[i - 1] == 10 && rawBytes[i] == 10) {
-				rawHeader = parseChars(rawBytes, 0, i - 1);
-				dataStart = i + 1;
-				break;
+		const fileReader = new FileReader();
+		fileReader.addEventListener("load", (event) => {
+			onProgress(50);
+
+			const rawBytes = readBytes(event.target.result);
+			let rawHeader = null;
+			let dataStart = 0;
+			for (let i = 1; i < rawBytes.length; i++) {
+				// Check for two line breaks
+				if (rawBytes[i - 1] == 10 && rawBytes[i] == 10) {
+					rawHeader = parseChars(rawBytes, 0, i - 1);
+					dataStart = i + 1;
+					break;
+				}
 			}
-		}
+			onProgress(60);
 
-		const header = parseHeader(rawHeader);
+			const header = parseHeader(rawHeader);
 
-		const rawData = rawBytes.slice(dataStart);
-		const parsedData = parseData(header, rawData);
+			onProgress(70);
 
-		const range = computeDataRange(parsedData);
-		const dimensions = new THREE.Vector3(header.sizes[0], header.sizes[1], header.sizes[2]);
-		const frameCount = header.sizes.length == 4 ? header.sizes[3] : 1;
+			const rawData = rawBytes.slice(dataStart);
+			const parsedData = parseData(header, rawData);
 
-		const max = Math.max(dimensions.x, dimensions.y, dimensions.z);
-		const scale = dimensions.clone().divideScalar(max);
-		if(header.spaceDirections != undefined) {
-			const spaceDirections = new THREE.Vector3(header.spaceDirections[0][0], header.spaceDirections[1][1], header.spaceDirections[2][2]);
-			scale.multiply(spaceDirections);
-		}
+			onProgress(95);
 
-		return new VolumeDataset(dimensions, frameCount, header.type, parsedData, range.min, range.max, scale);
+			const range = computeDataRange(parsedData);
+			const dimensions = new THREE.Vector3(header.sizes[0], header.sizes[1], header.sizes[2]);
+			const frameCount = header.sizes.length == 4 ? header.sizes[3] : 1;
+
+			const max = Math.max(dimensions.x, dimensions.y, dimensions.z);
+			const scale = dimensions.clone().divideScalar(max);
+			if(header.spaceDirections != undefined) {
+				const spaceDirections = new THREE.Vector3(header.spaceDirections[0][0], header.spaceDirections[1][1], header.spaceDirections[2][2]);
+				scale.multiply(spaceDirections);
+			}
+
+			onProgress(100);
+
+			onLoad(new VolumeDataset(dimensions, frameCount, header.type, parsedData, range.min, range.max, scale));
+		});
+		fileReader.readAsArrayBuffer(files[0]);
 	}
 }
 

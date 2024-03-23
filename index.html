@@ -12,7 +12,7 @@
     </head>
     <body>
         <input type="file" id="open-file-input" style="display: none;" accept=".nrrd, .dcm" multiple>
-        <div id="color-picker" class="color-picker">
+        <div id="color-picker" class="color-picker popup">
             <div class="color-area">
                 <div class="color-area-track">
                     <div class="thumb"></div>
@@ -44,6 +44,14 @@
                     <div class="field field-text" data-format="natural" data-max="255">
                         <input type="text" style="min-width: 3ch;"/>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div id="model-container" class="model-container" style="display: none;"> 
+            <div id="importing-model" class="importing model">
+                <h2>Importing</h2>
+                <div class="progress-bar">
+                    <div class="bar"></div>
                 </div>
             </div>
         </div>

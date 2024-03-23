@@ -6,7 +6,7 @@ export function setSliderValue(slider, value) {
     slider.value = value;
     const progress = (value / slider.max) * 100;
     slider.style.background = `linear-gradient(to right,
-        var(--color-accent-0) ${progress}%,
+        var(--color-primary) ${progress}%,
         var(--color-slider-track) ${progress}%)`;
 }
 
@@ -35,6 +35,12 @@ export function setToggleButtonOn(toggleButton, on) {
     } else {
         toggleButton.classList.remove("on");
     }
+}
+
+// Progress Bar
+export function setProgressBarProgress(progressBar, progress) {
+    const bar = progressBar.querySelector(".bar");
+    bar.style.width = `${progress}%`;
 }
 
 // Gradient field
@@ -68,15 +74,32 @@ export function sampleGradient(gradient, percent) {
     }
 }
 
+// Model
+export function showModel(model) {
+    const modelContainer = document.getElementById("model-container");
+    modelContainer.style.display = "";
+    for(let i = 0; i < modelContainer.children; i++) {
+        const child = modelContainer.children[i];
+        child.style.display = "none";
+    }
+    model.style.display = "";
+}
+
+export function closeModel(model) {
+    const modelContainer = document.getElementById("model-container");
+    modelContainer.style.display = "none";
+    model.style.display = "none";
+}
+
 // Player progress field
-function setPlayerProgressFieldValue(playerProgressField, value) {
+export function setPlayerProgressFieldValue(playerProgressField, value) {
     const frameLabel = playerProgressField.querySelector(".label");
     const progressSlider = playerProgressField.querySelector(".slider");
     frameLabel.innerHTML = parseInt(value) + 1;
     setSliderValue(progressSlider, value);
 }
 
-function setPlayerProgressFieldCount(playerProgressField, count) {
+export function setPlayerProgressFieldCount(playerProgressField, count) {
     const labels = playerProgressField.querySelectorAll(".label");
     labels[1].innerHTML = count;
     const chars = count.toString().length;

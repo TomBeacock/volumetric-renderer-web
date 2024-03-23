@@ -123,6 +123,7 @@ function normalizeValue(type, value) {
 
 let dataset = null;
 let currentFrame = 0;
+const importingModel = document.getElementById("importing-model");
 const player = document.getElementById("player");
 
 function updateScale() {
@@ -148,7 +149,13 @@ function updateFrame() {
     volume.material.needsUpdate = true;
 };
 
-function changeDataset(newDataset) {
+function onProgress(progress) {
+    const progressBar = importingModel.querySelector(".progress-bar");
+    ElementUtil.setProgressBarProgress(progressBar, progress);
+}
+
+function onLoad(newDataset) {
+    ElementUtil.closeModel(importingModel);
     dataset = newDataset;
     currentFrame = 0;
     ElementUtil.setPlayerFrame(player, currentFrame);
@@ -161,31 +168,23 @@ function changeDataset(newDataset) {
 const openFileInput = document.getElementById("open-file-input");
 openFileInput.addEventListener("change", (event) => {
     const files = openFileInput.files;
-    if(files.length > 0) {
+    if(files.length > 0) {   
         const filename = files[0].name;
         const ext = filename.substring(filename.lastIndexOf('.') + 1, filename.length) || filename;
+        let loader;
         switch(ext) {
-            case "nrrd": {
-                const fileReader = new FileReader();
-                fileReader.addEventListener("load", (event) => {
-                    try {
-                        const loader = new NRRDLoader();
-                        changeDataset(loader.parse(event.target.result));
-                    } catch (error) {
-                        console.log(error);
-                    }
-                });
-                fileReader.readAsArrayBuffer(files[0]);
-                break;
-            }
-            case "dcm": {
-                try {
-                    const loader = new DICOMLoader();
-                    loader.load(files, changeDataset);
-                } catch(error) {
-                    console.log(error);
-                }
-                break;
+            case "nrrd": loader = new NRRDLoader(); break;
+            case "dcm": loader = new DICOMLoader(); break;
+        }
+        if(loader !== undefined) {
+            try {
+                const progressBar = importingModel.querySelector(".progress-bar");
+                ElementUtil.setProgressBarProgress(progressBar, 0);
+                ElementUtil.showModel(importingModel);
+                loader.load(files, onLoad, onProgress);
+            } catch(error) {
+                console.log(error);
+                ElementUtil.closeModel(importingModel);
             }
         }
     }
@@ -282,5 +281,6 @@ function update()  {
     requestAnimationFrame(update);
 }
 
-changeDataset(new VolumeDataset(new THREE.Vector3(1, 1, 1), 1, THREE.UnsignedByteType, new Uint8Array([1]), 0.0, 1.0, new THREE.Vector3(1, 1, 1)));
+resampleTransferFunction();
+onLoad(new VolumeDataset(new THREE.Vector3(1, 1, 1), 1, THREE.UnsignedByteType, new Uint8Array([1]), 0.0, 1.0, new THREE.Vector3(1, 1, 1)));
 update();

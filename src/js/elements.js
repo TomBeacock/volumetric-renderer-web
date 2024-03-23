@@ -24,8 +24,8 @@ for(let i = 0; i < rangeSliders.length; i++) {
     const maxProgress = (max / slider1.max) * 100;
     slider1.style.background = `linear-gradient(to right,
         var(--color-slider-track) ${minProgress}%,
-        var(--color-accent-0) ${minProgress}%,
-        var(--color-accent-0) ${maxProgress}%,
+        var(--color-primary) ${minProgress}%,
+        var(--color-primary) ${maxProgress}%,
         var(--color-slider-track) ${maxProgress}%)`;
     
     let sliderEventListener = (event) => {
@@ -35,8 +35,8 @@ for(let i = 0; i < rangeSliders.length; i++) {
         const maxProgress = (max / slider1.max) * 100;
         slider1.style.background = `linear-gradient(to right,
             var(--color-slider-track) ${minProgress}%,
-            var(--color-accent-0) ${minProgress}%,
-            var(--color-accent-0) ${maxProgress}%,
+            var(--color-primary) ${minProgress}%,
+            var(--color-primary) ${maxProgress}%,
             var(--color-slider-track) ${maxProgress}%)`;
         rangeSlider.dispatchEvent(new CustomEvent("valuechange", {detail: {min: min, max: max}}));
     };
@@ -435,7 +435,7 @@ for(let i = 0; i < gradientFields.length; i++) {
 
     // Delete marker button
     const deleteButton = gradientField.querySelector("button");
-    deleteButton.addEventListener("click", (event) => removeMarker(gradient));
+    deleteButton.addEventListener("click", (event) => removeMarker(gradient)); 
     gradient.addEventListener("activemarkerchange", (event) => {
         if(event.detail.marker.hasAttribute("fixed")) {
             deleteButton.setAttribute("disabled", "");

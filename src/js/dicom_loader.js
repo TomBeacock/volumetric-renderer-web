@@ -3,11 +3,12 @@ import * as dicomParser from "dicom-parser";
 import {VolumeDataset} from "./volume_dataset.js";
 
 class DICOMLoader {
-	load(files, callback) {
+	load(files, onLoad, onProgress) {
         const dimensions = new THREE.Vector3(-1, -1, 0);
         const type = THREE.FloatType;
         let min = Infinity, max = -Infinity;
         const slices = Array(files.length).fill();
+        let loadedSlices = 0; 
 
         function recomputeDataRange(data) {
 			for(let i = 0; i < data.length; i++) {
@@ -50,12 +51,17 @@ class DICOMLoader {
             dimensions.z++;
             recomputeDataRange(slice);
 
-            if(typeof(callback) === "function" && dimensions.z == files.length) {
+            loadedSlices += 1;
+            if(typeof(onProgress) === "function") {
+                onProgress((loadedSlices / slices.length) * 100);
+            }
+
+            if(typeof(onLoad) === "function" && dimensions.z == files.length) {
                 const data = new Float32Array(rows * cols * files.length);
                 for(let i = 0; i < slices.length; i++) {
                     data.set(slices[i], i * n);
                 }
-                callback(new VolumeDataset(dimensions, 1, type, data, min, max));
+                onLoad(new VolumeDataset(dimensions, 1, type, data, min, max));
             }
         }
         for(let i = 0; i < files.length; i++) {
