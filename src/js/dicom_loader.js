@@ -9,6 +9,7 @@ class DICOMLoader {
         let min = Infinity, max = -Infinity;
         const slices = Array(files.length).fill();
         let loadedSlices = 0; 
+        let sliceThickness;
 
         function recomputeDataRange(data) {
 			for(let i = 0; i < data.length; i++) {
@@ -41,6 +42,7 @@ class DICOMLoader {
             const bitsAllocated = dicom.uint16("x00280100");
             const bitsStored = dicom.uint16("x00280101");
             const highBit = dicom.uint16("x00280102");
+            sliceThickness = dicom.floatString("x00180050");
 
             const n = rows * cols;
             const slice = new Float32Array(n);
@@ -61,7 +63,14 @@ class DICOMLoader {
                 for(let i = 0; i < slices.length; i++) {
                     data.set(slices[i], i * n);
                 }
-                onLoad(new VolumeDataset(dimensions, 1, type, data, min, max));
+                let scale;
+                if(sliceThickness !== undefined) {
+                    scale = dimensions.clone();
+                    scale.z *= sliceThickness;
+                    const max = Math.max(scale.x, scale.y, scale.z);
+                    scale = scale.divideScalar(max);
+                }
+                onLoad(new VolumeDataset(dimensions, 1, type, data, min, max, scale));
             }
         }
         for(let i = 0; i < files.length; i++) {
