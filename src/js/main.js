@@ -269,7 +269,21 @@ zAxisToggleButton.addEventListener("toggle", (event) => {
     zAxisLine.visible = event.detail.on;
 });
 
-function update()  {
+const fpsLabel = document.getElementById("fps-label");
+
+let lastTime;
+let frames = 0;
+function update(time)  {
+    frames++;
+    if(lastTime === undefined) {
+        lastTime = time;
+    } else if(time >= lastTime + 500){
+        const fps = (frames * 1000) / (time - lastTime);
+        fpsLabel.innerHTML = `${fps.toFixed(1)} fps`;
+        lastTime = time;
+        frames = 0;
+    }
+
     const playerFrame = ElementUtil.getPlayerFrame(player);
     if(currentFrame != playerFrame) {
         currentFrame = playerFrame;
