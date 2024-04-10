@@ -7,6 +7,7 @@ in vec3 frag_tex_coords;
 
 out vec4 frag_color;
 
+uniform float u_step_size;
 uniform vec3 u_camera_position;
 uniform float u_density_min;
 uniform float u_density_max;
@@ -23,10 +24,10 @@ void main() {
     vec3 ray_pos = frag_tex_coords - ray_dir * 1.8;
 
     float ray_dist = 1.8;
-    float step_size = 0.005;
-    int steps = int(ray_dist / step_size);
+    int step_count = int(ray_dist / u_step_size);
+    vec3 step_offset = ray_dir * u_step_size;
 
-    for (int i = 0; i < steps; i++) {
+    for (int i = 0; i < step_count; i++) {
         if (all(greaterThan(ray_pos, u_slice_min)) &&
             all(lessThan(ray_pos, u_slice_max))) {
             float density = texture(u_volume, ray_pos).r;
@@ -39,7 +40,7 @@ void main() {
                 break;
             }
         }
-        ray_pos += ray_dir * step_size;
+        ray_pos += step_offset;
     }
     color.a = 1.0 - color.a;
     frag_color = color;

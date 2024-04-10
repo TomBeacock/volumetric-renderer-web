@@ -92,6 +92,7 @@ function create_volume_mesh() {
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         uniforms: {
+            u_step_size: {value: 0.005},
             u_projection_matrix: {value: camera.projectionMatrix},
             u_view_matrix: {value: camera.matrixWorldInverse},
             u_transform_matrix: {value: new THREE.Matrix4()},
@@ -269,6 +270,14 @@ zAxisToggleButton.addEventListener("toggle", (event) => {
     zAxisLine.visible = event.detail.on;
 });
 
+function changeStepSize(amount) {
+    let newAmount = volume.material.uniforms.u_step_size.value + amount;
+    newAmount = Util.clamp(newAmount, 0.0005, 0.020);
+    console.log(newAmount);
+    volume.material.uniforms.u_step_size.value = newAmount;
+    volume.material.needsUpdate = true;
+}
+
 const fpsLabel = document.getElementById("fps-label");
 
 let lastTime;
@@ -282,6 +291,12 @@ function update(time)  {
         fpsLabel.innerHTML = `${fps.toFixed(1)} fps`;
         lastTime = time;
         frames = 0;
+
+        if(fps < 55) {
+            changeStepSize(0.0005);
+        } else if (fps > 65) {
+            changeStepSize(-0.0005);
+        }
     }
 
     const playerFrame = ElementUtil.getPlayerFrame(player);
