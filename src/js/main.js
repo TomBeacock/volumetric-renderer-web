@@ -150,6 +150,11 @@ function updateFrame() {
     volume.material.needsUpdate = true;
 };
 
+function resetStepSize() {
+    volume.material.uniforms.u_step_size.value = 0.005;
+    volume.material.needsUpdate = true;
+}
+
 function onProgress(progress) {
     const progressBar = importingModel.querySelector(".progress-bar");
     ElementUtil.setProgressBarProgress(progressBar, progress);
@@ -158,10 +163,15 @@ function onProgress(progress) {
 function onLoad(newDataset) {
     ElementUtil.closeModel(importingModel);
     dataset = newDataset;
+    
+    // Setup player
     currentFrame = 0;
     ElementUtil.setPlayerFrame(player, currentFrame);
     ElementUtil.setPlayerFrameCount(player, dataset.frameCount);
     player.style.display = dataset.frameCount > 1 ? "" : "none";
+
+    // Update renderer
+    resetStepSize();
     updateScale();
     updateFrame();
 }
