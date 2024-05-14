@@ -100,6 +100,7 @@ function create_volume_mesh() {
             u_camera_position: {value: camera.position.clone()},
             u_density_min: {value: 0.0},
             u_density_max: {value: 1.0},
+            u_brightness: {value: 0.0},
             u_slice_min: {value: new THREE.Vector3(0.0, 0.0, 0.0)},
             u_slice_max: {value: new THREE.Vector3(1.0, 1.0, 1.0)},
             u_volume: {value: defaultVolume},
@@ -151,7 +152,7 @@ function updateFrame() {
 };
 
 function resetStepSize() {
-    volume.material.uniforms.u_step_size.value = 0.005;
+    volume.material.uniforms.u_step_size.value = 0.0005;
     volume.material.needsUpdate = true;
 }
 
@@ -202,10 +203,11 @@ openFileInput.addEventListener("change", (event) => {
 });
 
 const brightnessField = document.getElementById("brightness-field");
-brightnessField.addEventListener("valuechange", (event) => {});
-
-const contrastField = document.getElementById("contrast-field");
-contrastField.addEventListener("valuechange", (event) => {});
+brightnessField.addEventListener("valuechange", (event) => {
+    const brightness = event.detail.value / 100;
+    volume.material.uniforms.u_brightness.value = brightness;
+    volume.material.needsUpdate = true;
+});
 
 const colorMapField = document.getElementById("color-map-field");
 colorMapField.addEventListener("valuechange", resampleTransferFunction);
@@ -288,6 +290,15 @@ function changeStepSize(amount) {
     volume.material.needsUpdate = true;
 }
 
+window.addEventListener("keydown", (event)=> {
+    if(event.code === "ArrowUp") {
+        changeStepSize(-0.0005);
+    }
+    if(event.code === "ArrowDown") {
+        changeStepSize(+0.0005);
+    }
+});
+
 const fpsLabel = document.getElementById("fps-label");
 
 let lastTime;
@@ -302,11 +313,11 @@ function update(time)  {
         lastTime = time;
         frames = 0;
 
-        if(fps < 55) {
+        /* if(fps < 55) {
             changeStepSize(0.0005);
         } else if (fps > 65) {
             changeStepSize(-0.0005);
-        }
+        } */
     }
 
     const playerFrame = ElementUtil.getPlayerFrame(player);

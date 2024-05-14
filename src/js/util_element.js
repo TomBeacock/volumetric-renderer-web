@@ -4,7 +4,7 @@ import * as Util from "./util.js";
 export function setSliderValue(slider, value) {
     value = Util.clamp(value, slider.min, slider.max);
     slider.value = value;
-    const progress = (value / slider.max) * 100;
+    const progress = ((value - slider.min) / (slider.max - slider.min)) * 100;
     slider.style.background = `linear-gradient(to right,
         var(--color-primary) ${progress}%,
         var(--color-slider-track) ${progress}%)`;

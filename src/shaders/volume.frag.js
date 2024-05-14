@@ -11,6 +11,7 @@ uniform float u_step_size;
 uniform vec3 u_camera_position;
 uniform float u_density_min;
 uniform float u_density_max;
+uniform float u_brightness;
 uniform vec3 u_slice_min;
 uniform vec3 u_slice_max;
 uniform sampler3D u_volume;
@@ -43,7 +44,7 @@ void main() {
         ray_pos += step_offset;
     }
     color.a = 1.0 - color.a;
-    frag_color = color;
+    frag_color = color + u_brightness;
 }
 `
 export default fragmentShader;
