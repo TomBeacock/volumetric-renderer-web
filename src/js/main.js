@@ -216,11 +216,12 @@ const opacityMapField = document.getElementById("opacity-map-field");
 opacityMapField.addEventListener("valuechange", resampleTransferFunction);
 
 function resampleTransferFunction() {
-    const data = new Uint8Array(256 * 4); // 256 rgba values
+    const resolution = 512;
+    const data = new Uint8Array(resolution * 4); // 512 rgba values
     const colorGradient = colorMapField.querySelector(".gradient");
     const opacityGradient = opacityMapField.querySelector(".gradient");
-    const step = 100 / 256;
-    for(let i = 0; i < 256; i++) {
+    const step = 100 / resolution;
+    for(let i = 0; i < resolution; i++) {
         const percent = i * step;
         const rgb = ElementUtil.sampleGradient(colorGradient, percent);
         const a =  ElementUtil.sampleGradient(opacityGradient, percent).r;
@@ -229,7 +230,7 @@ function resampleTransferFunction() {
         data[i * 4 + 2] = rgb.b;
         data[i * 4 + 3] = a;
     }
-    const transferFunc = new THREE.DataTexture(data, 256, 1);
+    const transferFunc = new THREE.DataTexture(data, resolution, 1);
     transferFunc.needsUpdate = true;
     volume.material.uniforms.u_transfer_func.value = transferFunc;
     volume.material.needsUpdate = true;
