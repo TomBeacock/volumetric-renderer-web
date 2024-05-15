@@ -285,7 +285,7 @@ zAxisToggleButton.addEventListener("toggle", (event) => {
 
 function changeStepSize(amount) {
     let newAmount = volume.material.uniforms.u_step_size.value + amount;
-    newAmount = Util.clamp(newAmount, 0.0005, 0.020);
+    newAmount = Util.clamp(newAmount, 0.005, 0.020);
     console.log(newAmount);
     volume.material.uniforms.u_step_size.value = newAmount;
     volume.material.needsUpdate = true;
